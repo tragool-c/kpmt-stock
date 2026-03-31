@@ -664,10 +664,10 @@ async function loadParts() {
   try {
     toast('Loading Part Master...', 'info');
     const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/01_PART_MASTER!A:R`);
-    if (!r.values || r.values.length < 2) throw new Error('No data');
-    const h = r.values[0];
+    if (!r.values || r.values.length < 3) throw new Error('No data');
+    const h = r.values[1]; // row 2 = headers
     const ix = k => h.indexOf(k);
-    PARTS = r.values.slice(1).map(row => ({
+    PARTS = r.values.slice(2).map(row => ({ // data starts row 3
       id:       row[ix('Part_ID')]||'',
       loc:      row[ix('Location')]||'',
       name:     row[ix('Part_Name')]||'',
@@ -698,9 +698,9 @@ async function loadTxnsFromSheets() {
   try {
     const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/02_ISSUE_LOG!A:K`);
     if (!r.values || r.values.length < 2) return;
-    const h = r.values[0];
+    const h = r.values[1]; // row 2 = headers
     const ix = k => h.indexOf(k);
-    TXNS = r.values.slice(1)
+    TXNS = r.values.slice(2) // data starts row 3
       .filter(row => row[ix('Transaction_ID')] && row[ix('Transaction_ID')] !== 'Transaction_ID')
       .map(row => ({
         ref:      row[ix('Transaction_ID')]||'',
