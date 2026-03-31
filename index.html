@@ -2,798 +2,1262 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KPMT — Stock Control System</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPMT Stock Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   KPMT Stock Control v4 — Google Sheets Edition
-   ============================================================ */
-:root {
-  --navy:   #0A1828; --navy2: #0F2A45; --navy3: #152F4E;
-  --orange: #E8690A; --orange2:#FF7A1A; --orange-l:#FFF0E6;
-  --green:  #059669; --green-l:#ECFDF5; --green-b:#6EE7B7;
-  --amber:  #D97706; --amber-l:#FFFBEB; --amber-b:#FCD34D;
-  --red:    #DC2626; --red-l:  #FEF2F2; --red-b:  #FCA5A5;
-  --blue:   #2563EB; --blue-l: #EFF6FF;
-  --bg:     #F0F4F8; --sur:    #FFFFFF; --sur2:   #F8FAFC;
-  --bdr:    #E2E8F0; --bdr2:   #CBD5E1;
-  --t1:     #0F172A; --t2:     #334155; --t3:     #64748B; --t4:#94A3B8;
-  --mono:   'IBM Plex Mono',monospace;
-  --display:'Barlow Condensed',sans-serif;
-  --font:   'Barlow','Sarabun',sans-serif;
-  --thai:   'Sarabun',sans-serif;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);background:var(--bg);color:var(--t1);font-size:14px}
-button{font-family:var(--font);cursor:pointer}
-input,select,textarea{font-family:var(--thai)}
+  :root {
+    --orange: #E8690A;
+    --orange-dark: #C45508;
+    --orange-light: #FF8C2A;
+    --navy: #0A1828;
+    --navy-mid: #112236;
+    --navy-light: #1A3350;
+    --steel: #2A4A6B;
+    --muted: #4A6580;
+    --border: #1E3A55;
+    --text: #E8F0F8;
+    --text-dim: #7A9BBB;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --yellow: #F39C12;
+    --card: #0F2035;
+  }
 
-/* ── TOPBAR ── */
-#topbar{height:60px;background:var(--navy);display:flex;align-items:center;padding:0 24px;gap:0;position:sticky;top:0;z-index:500;border-bottom:3px solid var(--orange)}
-.logo-wrap{display:flex;align-items:center;gap:10px;margin-right:28px;flex-shrink:0}
-.logo-icon{width:36px;height:36px;background:var(--orange);border-radius:4px;display:grid;place-items:center;font-family:var(--display);font-size:14px;font-weight:900;color:#fff;letter-spacing:1px;flex-shrink:0}
-.logo-text{display:flex;flex-direction:column;gap:1px}
-.logo-main{font-family:var(--display);font-size:18px;font-weight:800;color:#fff;letter-spacing:1px;line-height:1}
-.logo-sub{font-size:9px;font-weight:600;color:var(--orange);letter-spacing:2px;text-transform:uppercase}
-.top-kpis{display:flex;gap:0;margin-left:auto}
-.tkpi{display:flex;flex-direction:column;align-items:center;padding:0 18px;border-left:1px solid rgba(255,255,255,.08)}
-.tkpi-val{font-family:var(--display);font-size:22px;font-weight:800;line-height:1;letter-spacing:-.5px}
-.tkpi-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;color:#7B95AD}
-.tkpi.t-red .tkpi-val{color:#F87171}
-.tkpi.t-amber .tkpi-val{color:#FBBF24}
-.tkpi.t-green .tkpi-val{color:#34D399}
-.tkpi.t-blue .tkpi-val{color:#60A5FA}
-#conn-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;margin-left:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:2px;cursor:pointer;transition:.2s;font-size:10px;font-weight:600;color:#94A3B8}
-#conn-pill:hover{background:rgba(255,255,255,.1)}
-.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.dot.ok{background:#34D399;box-shadow:0 0 0 2px rgba(52,211,153,.3)}
-.dot.err{background:#F87171}
-.dot.load{background:#FBBF24;animation:pulse 1.2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ── NAVBAR ── */
-#navbar{background:var(--navy2);display:flex;align-items:stretch;padding:0 24px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto;position:sticky;top:60px;z-index:499}
-#navbar::-webkit-scrollbar{display:none}
-.nav-tab{display:flex;align-items:center;gap:7px;padding:0 18px;height:42px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#7B95AD;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:.15s;white-space:nowrap}
-.nav-tab:hover{color:#fff}
-.nav-tab.active{color:#fff;border-bottom-color:var(--orange)}
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* ── CONTENT ── */
-#content{padding:24px;max-width:1440px;margin:0 auto}
-.page{display:none;animation:fadeIn .2s ease}
-.page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* ── HEADER ── */
+  header {
+    background: var(--navy-mid);
+    border-bottom: 3px solid var(--orange);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
 
-/* ── PAGE HEADER ── */
-.pg-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
-.pg-title{font-family:var(--display);font-size:26px;font-weight:800;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;line-height:1}
-.pg-title span{color:var(--orange)}
-.pg-sub{font-size:12px;color:var(--t3);margin-top:4px;font-family:var(--thai)}
+  .logo-emblem {
+    width: 38px; height: 38px;
+    background: var(--orange);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: white;
+    flex-shrink: 0;
+    letter-spacing: -1px;
+  }
 
-/* ── KPI ROW ── */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px;background:var(--navy2);border:2px solid var(--navy2);border-radius:4px;overflow:hidden}
-.kpi-block{background:var(--navy3);padding:20px 22px;display:flex;align-items:center;gap:14px;position:relative;transition:.15s}
-.kpi-block::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.kpi-block.k-red::before{background:var(--red)}
-.kpi-block.k-amber::before{background:var(--amber)}
-.kpi-block.k-green::before{background:var(--green)}
-.kpi-block.k-blue::before{background:var(--blue)}
-.kpi-icon{width:46px;height:46px;border-radius:2px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
-.kpi-block.k-red .kpi-icon{background:rgba(220,38,38,.15)}
-.kpi-block.k-amber .kpi-icon{background:rgba(217,119,6,.15)}
-.kpi-block.k-green .kpi-icon{background:rgba(5,150,105,.15)}
-.kpi-block.k-blue .kpi-icon{background:rgba(37,99,235,.15)}
-.kpi-num{font-family:var(--display);font-size:32px;font-weight:800;line-height:1;letter-spacing:-1px}
-.kpi-block.k-red .kpi-num{color:#F87171}
-.kpi-block.k-amber .kpi-num{color:#FBBF24}
-.kpi-block.k-green .kpi-num{color:#34D399}
-.kpi-block.k-blue .kpi-num{color:#60A5FA}
-.kpi-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7B95AD;margin-top:3px}
-.kpi-sub{font-size:11px;color:#4A6580;margin-top:1px;font-family:var(--thai)}
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
 
-/* ── GRID ── */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .logo-text span { color: var(--orange); }
 
-/* ── PANEL ── */
-.panel{background:var(--sur);border:1px solid var(--bdr);border-radius:2px;overflow:hidden;border-top:3px solid var(--orange)}
-.panel-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--sur2);border-bottom:1px solid var(--bdr)}
-.panel-title{font-family:var(--display);font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
-.chart-box{padding:16px 18px;height:220px;position:relative}
+  .header-spacer { flex: 1; }
 
-/* ── ALERT ROWS ── */
-.alert-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bg);transition:.1s;cursor:default}
-.alert-item:hover{background:var(--bg)}
-.alert-item:last-child{border-bottom:none}
-.al-bar{width:3px;align-self:stretch;flex-shrink:0;border-radius:2px}
-.al-bar.red{background:var(--red)}
-.al-bar.amber{background:var(--amber)}
-.al-info{flex:1;min-width:0}
-.al-name{font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.al-id{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:1px}
-.al-badge{flex-shrink:0;padding:3px 8px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:2px}
-.al-badge.red{background:var(--red-l);color:var(--red)}
-.al-badge.amber{background:var(--amber-l);color:var(--amber)}
-.al-qty{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t3);margin-left:4px}
+  #conn-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: var(--navy-light);
+  }
 
-/* ── FORM ── */
-.form-wrap{max-width:760px}
-.form-section{margin-bottom:24px}
-.form-section-title{font-family:var(--display);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--orange-l)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-full{grid-column:1/-1}
-.fld{display:flex;flex-direction:column;gap:5px}
-.fld label{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
-.fld input,.fld select,.fld textarea{padding:10px 13px;border:1.5px solid var(--bdr);background:var(--sur2);color:var(--t1);font-size:13px;border-radius:2px;outline:none;transition:.15s;font-family:var(--thai)}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--orange);background:#fff;box-shadow:0 0 0 3px rgba(232,105,10,.08)}
-.fld textarea{resize:vertical;min-height:80px}
-.psearch-wrap{position:relative}
-.pdrop{position:absolute;top:calc(100%+3px);left:0;right:0;z-index:300;background:var(--sur);border:1.5px solid var(--orange);border-top:3px solid var(--orange);box-shadow:0 8px 32px rgba(0,0,0,.15);max-height:240px;overflow-y:auto;display:none;border-radius:0 0 2px 2px}
-.pdrop.open{display:block}
-.pdrop::-webkit-scrollbar{width:3px}
-.pdrop::-webkit-scrollbar-thumb{background:var(--orange)}
-.pd-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid var(--bg);cursor:pointer;transition:.1s}
-.pd-row:hover{background:var(--orange-l)}
-.pd-id{font-family:var(--mono);font-size:10px;color:var(--t3);width:90px;flex-shrink:0}
-.pd-name{font-size:12px;font-weight:600;flex:1}
-.pd-bal{font-family:var(--mono);font-size:11px;font-weight:700}
-.info-bar{display:none;gap:0;margin-top:8px;border:1px solid var(--bdr);border-left:4px solid var(--orange);background:var(--sur2);border-radius:2px;overflow:hidden}
-.info-bar.show{display:flex}
-.ib-cell{padding:8px 16px;border-right:1px solid var(--bdr)}
-.ib-cell:last-child{border-right:none}
-.ib-lbl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--t4)}
-.ib-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t1);margin-top:2px}
-.btn-row{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--bdr)}
-.btn{padding:11px 24px;border-radius:2px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border:none;transition:.15s;font-family:var(--display)}
-.btn-orange{background:var(--orange);color:#fff}
-.btn-orange:hover{background:var(--orange2)}
-.btn-green{background:var(--green);color:#fff}
-.btn-green:hover{background:#047857}
-.btn-navy{background:var(--navy);color:#fff}
-.btn-ghost{background:transparent;color:var(--t2);border:1.5px solid var(--bdr2)}
-.btn-ghost:hover{background:var(--bg)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot.red   { background: var(--red); }
+  .dot.pulse {
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; } 50% { opacity:0.3; }
+  }
 
-/* ── TABLE ── */
-.tbl-wrap{border:1px solid var(--bdr);border-radius:2px;overflow:hidden}
-.tbl-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sur2);border-bottom:1px solid var(--bdr);flex-wrap:wrap}
-.tbl-search{padding:7px 12px 7px 30px;border:1.5px solid var(--bdr);border-radius:2px;font-size:12px;background:var(--sur) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;color:var(--t1);outline:none;width:220px}
-.tbl-search:focus{border-color:var(--orange)}
-.tbl-sel{padding:7px 10px;border:1.5px solid var(--bdr);border-radius:2px;font-size:12px;color:var(--t1);background:var(--sur);outline:none}
-.tbl-count{font-size:11px;color:var(--t4);margin-left:auto;font-family:var(--mono)}
-.tbl-scroll{max-height:500px;overflow-y:auto}
-.tbl-scroll::-webkit-scrollbar{width:4px}
-.tbl-scroll::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
-table{width:100%;border-collapse:collapse}
-thead{position:sticky;top:0;z-index:10}
-thead th{padding:9px 14px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7B95AD;text-align:left;background:var(--navy);border-bottom:2px solid var(--orange)}
-thead th:first-child{border-left:3px solid var(--orange)}
-tbody tr{border-bottom:1px solid var(--bg);transition:.1s}
-tbody tr:hover{background:var(--orange-l)}
-td{padding:9px 14px;font-size:12px;vertical-align:middle}
-td:first-child{border-left:3px solid transparent}
-tbody tr:hover td:first-child{border-left-color:var(--orange)}
-.td-mono{font-family:var(--mono);font-size:11px}
-.td-r{text-align:right}
-.txn-pill{display:inline-flex;align-items:center;padding:2px 8px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:2px}
-.txn-pill.out{background:var(--red-l);color:var(--red)}
-.txn-pill.in{background:var(--green-l);color:var(--green)}
-.txn-pill.po{background:var(--blue-l);color:var(--blue)}
+  /* ── NAV TABS ── */
+  nav {
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 24px;
+    gap: 2px;
+    overflow-x: auto;
+  }
 
-/* ── REPORT ── */
-.rpt-controls{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
-.rpt-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.rpt-kpi{background:var(--sur);border:1px solid var(--bdr);border-top:3px solid var(--orange);padding:16px 18px;border-radius:2px}
-.rpt-val{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
-.rpt-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-top:4px}
+  nav button {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
 
-/* ── SETUP ── */
-.setup-hero{background:var(--navy);padding:28px 32px;border-radius:2px;border-left:6px solid var(--orange);margin-bottom:20px;display:flex;align-items:flex-start;gap:20px}
-.hero-icon{font-size:36px;flex-shrink:0;margin-top:4px}
-.hero-title{font-family:var(--display);font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px;text-transform:uppercase}
-.hero-desc{font-size:13px;color:#7B95AD;margin-top:6px;line-height:1.6;font-family:var(--thai)}
-.setup-step{background:var(--sur);border:1px solid var(--bdr);border-left:4px solid var(--navy3);padding:18px 22px;margin-bottom:10px;border-radius:2px;display:flex;align-items:flex-start;gap:16px;transition:.15s}
-.setup-step.done{border-left-color:var(--green)}
-.step-num{width:30px;height:30px;background:var(--navy);color:var(--orange);border-radius:2px;display:grid;place-items:center;font-family:var(--display);font-size:14px;font-weight:800;flex-shrink:0}
-.setup-step.done .step-num{background:var(--green);color:#fff}
-.step-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px}
-.step-desc{font-size:12px;color:var(--t3);line-height:1.5;font-family:var(--thai)}
-.step-inp{display:flex;gap:8px;margin-top:10px}
-.step-inp input{flex:1;padding:9px 13px;border:1.5px solid var(--bdr);border-radius:2px;font-size:12px;font-family:var(--mono);color:var(--t1);background:var(--sur2);outline:none}
-.step-inp input:focus{border-color:var(--orange)}
+  nav button:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  nav button.active {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
+    background: rgba(232,105,10,0.06);
+  }
 
-/* ── TOAST ── */
-#toast-area{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
-.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;min-width:260px;border-left:4px solid;border-radius:2px;box-shadow:0 8px 32px rgba(0,0,0,.2);animation:toastIn .2s ease;font-size:13px;font-weight:600}
-.toast.success{background:#fff;border-color:var(--green);color:var(--green)}
-.toast.error{background:#fff;border-color:var(--red);color:var(--red)}
-.toast.info{background:var(--navy);border-color:var(--orange);color:#CBD5E1}
-@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+  /* ── MAIN ── */
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 
-/* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(10,24,40,.7);z-index:600;display:none;place-items:center}
-.modal-bg.open{display:grid}
-.modal{background:var(--sur);max-width:480px;width:90%;border-top:4px solid var(--orange);border-radius:2px;box-shadow:0 24px 64px rgba(0,0,0,.3);animation:modalIn .2s ease}
-@keyframes modalIn{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
-.modal-hd{padding:20px 24px 0}
-.modal-title{font-family:var(--display);font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.modal-sub{font-size:12px;color:var(--t3);margin-top:4px;font-family:var(--thai)}
-.modal-bd{padding:16px 24px;font-size:13px;color:var(--t2);line-height:1.8;font-family:var(--thai)}
-.modal-bd b{color:var(--t1);font-weight:700}
-.modal-ft{padding:16px 24px 20px;display:flex;gap:10px;border-top:1px solid var(--bdr)}
-.loading-row{display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--t3)}
-.spinner{width:18px;height:18px;border:2px solid var(--bdr2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
-.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
-.empty-title{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:4px}
-.empty-desc{font-size:12px;font-family:var(--thai)}
+  .tab-panel { display: none; animation: fadeIn 0.2s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
-/* ── GOOGLE LOGIN BUTTON ── */
-.google-btn{display:flex;align-items:center;gap:10px;padding:11px 20px;background:#fff;border:1.5px solid var(--bdr2);border-radius:4px;font-size:13px;font-weight:600;color:var(--t1);cursor:pointer;transition:.15s}
-.google-btn:hover{background:var(--bg);border-color:var(--orange)}
-.google-icon{width:20px;height:20px;flex-shrink:0}
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
 
-@media(max-width:1024px){.grid-2{grid-template-columns:1fr}}
-@media(max-width:768px){.kpi-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.form-full{grid-column:1}.top-kpis{display:none}#content{padding:12px}}
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: var(--orange);
+    border-radius: 2px;
+  }
+
+  /* ── DASHBOARD STATS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+  }
+  .stat-card.green::after { background: var(--green); }
+  .stat-card.red::after   { background: var(--red); }
+  .stat-card.yellow::after{ background: var(--yellow); }
+
+  .stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; border-radius: 6px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--navy-light);
+    border-bottom: 2px solid var(--orange);
+  }
+
+  th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 12px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
+
+  td {
+    padding: 9px 12px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .badge-ok     { background: rgba(46,204,113,0.15); color: var(--green); }
+  .badge-low    { background: rgba(243,156,18,0.15); color: var(--yellow); }
+  .badge-empty  { background: rgba(231,76,60,0.15);  color: var(--red); }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-bar input,
+  .search-bar select {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-bar input:focus,
+  .search-bar select:focus { border-color: var(--orange); }
+  .search-bar input { flex: 1; min-width: 200px; }
+
+  /* ── FORMS ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  input, select, textarea {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232,105,10,0.15);
+  }
+  input::placeholder { color: var(--muted); }
+  select option { background: var(--navy-mid); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--orange-light); transform: translateY(-1px); }
+  .btn-primary:active { transform: none; }
+  .btn-primary:disabled { background: var(--muted); cursor: not-allowed; transform: none; }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+
+  .btn-danger {
+    background: rgba(231,76,60,0.15);
+    color: var(--red);
+    border: 1px solid rgba(231,76,60,0.3);
+  }
+  .btn-danger:hover { background: rgba(231,76,60,0.25); }
+
+  /* ── ALERT ── */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: none;
+    margin-bottom: 14px;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert.show { display: flex; }
+  .alert-success { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: var(--green); }
+  .alert-error   { background: rgba(231,76,60,0.1);  border: 1px solid rgba(231,76,60,0.3);  color: var(--red); }
+  .alert-info    { background: rgba(232,105,10,0.1); border: 1px solid rgba(232,105,10,0.3); color: var(--orange); }
+
+  /* ── LOADING ── */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PART AUTOCOMPLETE ── */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-list {
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: var(--navy-mid);
+    border: 1px solid var(--orange);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+  }
+  .autocomplete-list.open { display: block; }
+  .ac-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .ac-item:hover { background: var(--navy-light); }
+  .ac-item small { color: var(--text-dim); font-size: 11px; }
+
+  /* ── HISTORY BADGE ── */
+  .hist-issue   { color: var(--red);    background: rgba(231,76,60,0.1);  }
+  .hist-receive { color: var(--green);  background: rgba(46,204,113,0.1); }
+
+  /* ── SECTION DIVIDER ── */
+  .section-hd {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    main { padding: 12px; }
+    header { padding: 0 12px; }
+    nav { padding: 0 8px; }
+    nav button { padding: 10px 12px; font-size: 12px; }
+    .stat-val { font-size: 28px; }
+  }
+
+  /* ── PAGINATION ── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .page-btn {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 30px; height: 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .page-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .page-btn.active { background: var(--orange); color: white; border-color: var(--orange); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ── LOW STOCK ALERT BAR ── */
+  #low-stock-bar {
+    background: rgba(243,156,18,0.1);
+    border: 1px solid rgba(243,156,18,0.3);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--yellow);
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  #low-stock-bar.show { display: flex; }
 </style>
 </head>
 <body>
 
-<!-- ── TOPBAR ── -->
-<div id="topbar">
-  <div class="logo-wrap">
-    <div class="logo-icon">PE</div>
-    <div class="logo-text">
-      <div class="logo-main">KPMT</div>
-      <div class="logo-sub">Stock Control · PE Dept</div>
+<!-- HEADER -->
+<header>
+  <div class="logo-emblem">K</div>
+  <div class="logo-text">KPMT <span>STOCK</span></div>
+  <div class="header-spacer"></div>
+  <div id="conn-status">
+    <div class="dot pulse" id="conn-dot"></div>
+    <span id="conn-label">กำลังเชื่อมต่อ...</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
+  <button onclick="showTab('issue', this)">📤 Issue OUT</button>
+  <button onclick="showTab('receive', this)">📥 Receive IN</button>
+  <button onclick="showTab('parts', this)">🗄️ Parts List</button>
+  <button onclick="showTab('history', this)">📋 History</button>
+  <button onclick="showTab('setup', this)">⚙️ Setup</button>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-total">—</div>
+        <div class="stat-lbl">Total Parts</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-val" id="stat-instock">—</div>
+        <div class="stat-lbl">In Stock</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-val" id="stat-low">—</div>
+        <div class="stat-lbl">Low Stock</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-val" id="stat-empty">—</div>
+        <div class="stat-lbl">Out of Stock</div>
+      </div>
+    </div>
+
+    <div id="low-stock-bar">
+      ⚠️ <strong>Low Stock Alert:</strong>&nbsp;<span id="low-stock-list">—</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">สต็อกต่ำกว่ากำหนด (Min Stock)</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Part No</th>
+              <th>Description</th>
+              <th>QTY</th>
+              <th>Min</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="dash-low-tbl">
+            <tr><td colspan="5" class="loading"><span class="spinner"></span>กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-  <div class="top-kpis">
-    <div class="tkpi t-red"><div class="tkpi-val" id="tk-zero">—</div><div class="tkpi-lbl">Zero Stock</div></div>
-    <div class="tkpi t-amber"><div class="tkpi-val" id="tk-low">—</div><div class="tkpi-lbl">Below Min</div></div>
-    <div class="tkpi t-green"><div class="tkpi-val" id="tk-val">—</div><div class="tkpi-lbl">Value M฿</div></div>
-    <div class="tkpi t-blue"><div class="tkpi-val" id="tk-total">—</div><div class="tkpi-lbl">Total Items</div></div>
-  </div>
-  <div id="conn-pill" onclick="gotoSetup()">
-    <span class="dot load" id="c-dot"></span>
-    <span id="conn-text">NOT CONNECTED</span>
-  </div>
-</div>
 
-<!-- ── NAVBAR ── -->
-<div id="navbar">
-  <button class="nav-tab active" data-tab="dashboard" onclick="showTab('dashboard')">▪ Dashboard</button>
-  <button class="nav-tab" data-tab="issue" onclick="showTab('issue')">▪ Issue OUT</button>
-  <button class="nav-tab" data-tab="receive" onclick="showTab('receive')">▪ Receive IN</button>
-  <button class="nav-tab" data-tab="po" onclick="showTab('po')">▪ Purchase Order</button>
-  <button class="nav-tab" data-tab="history" onclick="showTab('history')">▪ History</button>
-  <button class="nav-tab" data-tab="report" onclick="showTab('report')">▪ Report</button>
-  <button class="nav-tab" data-tab="setup" onclick="showTab('setup')">▪ Setup</button>
-</div>
-
-<!-- ── CONTENT ── -->
-<div id="content">
-
-<!-- DASHBOARD -->
-<div id="pg-dashboard" class="page active">
-  <div class="pg-head">
-    <div><div class="pg-title">Stock <span>Dashboard</span></div><div class="pg-sub" id="dash-sub">PE Department — Kubota Thailand</div></div>
-    <div style="font-size:11px;color:var(--t4);font-family:var(--mono)" id="dash-updated">UPDATED: —</div>
-  </div>
-  <div class="kpi-row">
-    <div class="kpi-block k-red"><div class="kpi-icon">🚨</div><div><div class="kpi-num" id="d-zero">—</div><div class="kpi-lbl">Zero Stock</div><div class="kpi-sub">ต้องสั่งซื้อด่วน</div></div></div>
-    <div class="kpi-block k-amber"><div class="kpi-icon">⚠️</div><div><div class="kpi-num" id="d-low">—</div><div class="kpi-lbl">Below Min</div><div class="kpi-sub">ต่ำกว่า Min Stock</div></div></div>
-    <div class="kpi-block k-green"><div class="kpi-icon">💰</div><div><div class="kpi-num" id="d-val">—</div><div class="kpi-lbl">Total Value</div><div class="kpi-sub">มูลค่าสต๊อกรวม (฿)</div></div></div>
-    <div class="kpi-block k-blue"><div class="kpi-icon">📦</div><div><div class="kpi-num" id="d-total">—</div><div class="kpi-lbl">Total Items</div><div class="kpi-sub">รายการอะไหล่ทั้งหมด</div></div></div>
-  </div>
-  <div class="grid-2">
-    <div class="panel"><div class="panel-head"><div class="panel-title">Stock Value by Group (Top 10)</div></div><div class="chart-box"><canvas id="ch-group"></canvas></div></div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">Movement — 30 Days (IN vs OUT)</div></div><div class="chart-box"><canvas id="ch-move"></canvas></div></div>
-  </div>
-  <div class="grid-2">
-    <div class="panel"><div class="panel-head"><div class="panel-title">🚨 Zero Stock — Order Immediately</div><span class="txn-pill out" id="cnt-zero">0</span></div><div class="panel-body no-pad" id="list-zero" style="padding:0"><div class="loading-row"><div class="spinner"></div> Loading...</div></div></div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">⚠️ Below Min Stock</div><span class="txn-pill" style="background:var(--amber-l);color:var(--amber)" id="cnt-low">0</span></div><div id="list-low" style="padding:0"><div class="loading-row"><div class="spinner"></div> Loading...</div></div></div>
-  </div>
-</div>
-
-<!-- ISSUE OUT -->
-<div id="pg-issue" class="page">
-  <div class="pg-head"><div><div class="pg-title">Issue <span>OUT</span></div><div class="pg-sub">บันทึกการเบิกอะไหล่ออกจากคลัง</div></div></div>
-  <div class="form-wrap">
-    <div class="form-section">
-      <div class="form-section-title">Part Information</div>
+  <!-- ══ ISSUE OUT ══ -->
+  <div class="tab-panel" id="tab-issue">
+    <div class="card">
+      <div class="card-title">เบิกอะไหล่ (Issue OUT)</div>
+      <div id="issue-alert" class="alert"></div>
       <div class="form-grid">
-        <div class="fld form-full"><label>Part ID / Part Name *</label>
-          <div class="psearch-wrap"><input type="text" id="is-ps" placeholder="พิมพ์ Part ID หรือชื่ออะไหล่..." autocomplete="off" oninput="searchPart(this,'is')" onblur="closeDrop('is',300)"><div class="pdrop" id="is-drop"></div></div><input type="hidden" id="is-pid"></div>
-        <div class="form-full"><div class="info-bar" id="is-bar"><div class="ib-cell"><div class="ib-lbl">Location</div><div class="ib-val" id="is-loc">—</div></div><div class="ib-cell"><div class="ib-lbl">Current Stock</div><div class="ib-val" id="is-bal">—</div></div><div class="ib-cell"><div class="ib-lbl">Min/Max</div><div class="ib-val" id="is-mm">—</div></div><div class="ib-cell"><div class="ib-lbl">Unit</div><div class="ib-val" id="is-unit">—</div></div></div></div>
+        <div class="form-group">
+          <label>Part No / ชื่ออะไหล่</label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="issue-search" placeholder="พิมพ์เพื่อค้นหา..." autocomplete="off"
+              oninput="acSearch(this.value, 'issue')" onfocus="acSearch(this.value, 'issue')">
+            <div class="autocomplete-list" id="issue-ac"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Part No (ที่เลือก)</label>
+          <input type="text" id="issue-partno" readonly placeholder="จะกรอกอัตโนมัติ" style="opacity:0.7;">
+        </div>
+        <div class="form-group">
+          <label>จำนวน (QTY)</label>
+          <input type="number" id="issue-qty" min="1" placeholder="0" value="1">
+        </div>
+        <div class="form-group">
+          <label>เบิกโดย</label>
+          <input type="text" id="issue-by" placeholder="ชื่อผู้เบิก">
+        </div>
+        <div class="form-group" style="grid-column: 1/-1">
+          <label>วัตถุประสงค์ / เครื่อง</label>
+          <input type="text" id="issue-purpose" placeholder="เช่น ซ่อม PLC Line 3">
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="issue-btn" onclick="submitIssue()">
+          📤 ยืนยันเบิก
+        </button>
+        <div id="issue-stock-info" style="color:var(--text-dim); font-size:13px;"></div>
       </div>
     </div>
-    <div class="form-section">
-      <div class="form-section-title">Transaction Details</div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">รายการที่เบิกล่าสุด</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>วันที่</th><th>Part No</th><th>QTY</th><th>เบิกโดย</th><th>วัตถุประสงค์</th></tr>
+          </thead>
+          <tbody id="issue-recent-tbl">
+            <tr><td colspan="5" class="loading">ยังไม่มีรายการ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RECEIVE IN ══ -->
+  <div class="tab-panel" id="tab-receive">
+    <div class="card">
+      <div class="card-title">รับอะไหล่เข้า (Receive IN)</div>
+      <div id="receive-alert" class="alert"></div>
       <div class="form-grid">
-        <div class="fld"><label>Qty เบิก *</label><input type="number" id="is-qty" min="1" placeholder="0"></div>
-        <div class="fld"><label>Date</label><input type="date" id="is-date"></div>
-        <div class="fld"><label>Line / Machine</label>
-          <select id="is-line"><option value="">— Select Line —</option><option>TM C28 ASSY</option><option>3P ASSEMBLY</option><option>LV-ASSY</option><option>HST ASSY</option><option>TM-MC (CASE)</option><option>TM-MC (HST)</option><option>LV-MC</option><option>CV-MC</option><option>CB-MC</option><option>GRINDING</option><option>COMMON</option></select></div>
-        <div class="fld"><label>WO / Ref No.</label><input type="text" id="is-ref" placeholder="WO-XXXX"></div>
-        <div class="fld"><label>เหตุผล / Used For</label><input type="text" id="is-reason" placeholder="เช่น Breakdown, PM"></div>
-        <div class="fld"><label>Requested By</label><input type="text" id="is-by" placeholder="ชื่อผู้เบิก"></div>
-        <div class="fld form-full"><label>หมายเหตุ</label><textarea id="is-note" placeholder="รายละเอียดเพิ่มเติม..."></textarea></div>
+        <div class="form-group">
+          <label>Part No / ชื่ออะไหล่</label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="receive-search" placeholder="พิมพ์เพื่อค้นหา..." autocomplete="off"
+              oninput="acSearch(this.value, 'receive')" onfocus="acSearch(this.value, 'receive')">
+            <div class="autocomplete-list" id="receive-ac"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Part No (ที่เลือก)</label>
+          <input type="text" id="receive-partno" readonly placeholder="จะกรอกอัตโนมัติ" style="opacity:0.7;">
+        </div>
+        <div class="form-group">
+          <label>จำนวน (QTY)</label>
+          <input type="number" id="receive-qty" min="1" placeholder="0" value="1">
+        </div>
+        <div class="form-group">
+          <label>รับโดย</label>
+          <input type="text" id="receive-by" placeholder="ชื่อผู้รับ">
+        </div>
+        <div class="form-group" style="grid-column: 1/-1">
+          <label>หมายเหตุ / เลข PO</label>
+          <input type="text" id="receive-note" placeholder="เช่น PO-2026-0123">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="receive-btn" onclick="submitReceive()">
+        📥 ยืนยันรับเข้า
+      </button>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">รายการที่รับล่าสุด</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>วันที่</th><th>Part No</th><th>QTY</th><th>รับโดย</th><th>หมายเหตุ</th></tr>
+          </thead>
+          <tbody id="receive-recent-tbl">
+            <tr><td colspan="5" class="loading">ยังไม่มีรายการ</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="btn-row"><button class="btn btn-orange" onclick="doIssue()" id="btn-is">▶ ISSUE OUT</button><button class="btn btn-ghost" onclick="clearF('is')">CLEAR</button></div>
   </div>
-</div>
 
-<!-- RECEIVE IN -->
-<div id="pg-receive" class="page">
-  <div class="pg-head"><div><div class="pg-title">Receive <span>IN</span></div><div class="pg-sub">บันทึกการรับอะไหล่เข้าคลัง</div></div></div>
-  <div class="form-wrap">
-    <div class="form-section">
-      <div class="form-section-title">Part Information</div>
+  <!-- ══ PARTS LIST ══ -->
+  <div class="tab-panel" id="tab-parts">
+    <div class="card">
+      <div class="card-title">ข้อมูลอะไหล่ทั้งหมด (<span id="parts-count">—</span> รายการ)</div>
+      <div class="search-bar">
+        <input type="text" id="parts-search" placeholder="🔍 ค้นหา Part No / ชื่อ..." oninput="filterParts()">
+        <select id="parts-filter-status" onchange="filterParts()">
+          <option value="">ทุกสถานะ</option>
+          <option value="ok">In Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="empty">Out of Stock</option>
+        </select>
+        <button class="btn btn-outline" onclick="loadParts()">🔄 รีเฟรช</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Part No</th>
+              <th>Description</th>
+              <th>Unit</th>
+              <th>QTY</th>
+              <th>Min</th>
+              <th>Location</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="parts-tbl">
+            <tr><td colspan="8" class="loading"><span class="spinner"></span>กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="parts-pager"></div>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY ══ -->
+  <div class="tab-panel" id="tab-history">
+    <div class="card">
+      <div class="card-title">ประวัติการเคลื่อนไหว</div>
+      <div class="search-bar">
+        <input type="text" id="hist-search" placeholder="🔍 ค้นหา..." oninput="filterHistory()">
+        <select id="hist-filter-type" onchange="filterHistory()">
+          <option value="">ทุกประเภท</option>
+          <option value="ISSUE">Issue OUT</option>
+          <option value="RECEIVE">Receive IN</option>
+        </select>
+        <button class="btn btn-outline" onclick="loadHistory()">🔄 รีเฟรช</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่/เวลา</th>
+              <th>ประเภท</th>
+              <th>Part No</th>
+              <th>QTY</th>
+              <th>ผู้ดำเนินการ</th>
+              <th>หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbl">
+            <tr><td colspan="6" class="loading"><span class="spinner"></span>กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="hist-pager"></div>
+    </div>
+  </div>
+
+  <!-- ══ SETUP ══ -->
+  <div class="tab-panel" id="tab-setup">
+    <div class="card">
+      <div class="card-title">การตั้งค่าระบบ</div>
+      <div class="section-hd">การเชื่อมต่อ</div>
       <div class="form-grid">
-        <div class="fld form-full"><label>Part ID / Part Name *</label>
-          <div class="psearch-wrap"><input type="text" id="rv-ps" placeholder="พิมพ์ Part ID หรือชื่ออะไหล่..." autocomplete="off" oninput="searchPart(this,'rv')" onblur="closeDrop('rv',300)"><div class="pdrop" id="rv-drop"></div></div><input type="hidden" id="rv-pid"></div>
-        <div class="form-full"><div class="info-bar" id="rv-bar" style="border-left-color:var(--green)"><div class="ib-cell"><div class="ib-lbl">Location</div><div class="ib-val" id="rv-loc">—</div></div><div class="ib-cell"><div class="ib-lbl">Current Stock</div><div class="ib-val" id="rv-bal">—</div></div><div class="ib-cell"><div class="ib-lbl">Supplier</div><div class="ib-val" id="rv-sup">—</div></div></div></div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Apps Script API URL</label>
+          <input type="text" id="setup-api-url" value="">
+          <span style="font-size:11px; color:var(--text-dim); margin-top:4px;">เปลี่ยนเมื่อ Deploy ใหม่</span>
+        </div>
+        <div class="form-group">
+          <label>ชื่อผู้ใช้เริ่มต้น</label>
+          <input type="text" id="setup-username" placeholder="ชื่อของคุณ">
+        </div>
+        <div class="form-group">
+          <label>Low Stock Threshold (%)</label>
+          <input type="number" id="setup-threshold" value="20" min="1" max="100">
+          <span style="font-size:11px; color:var(--text-dim); margin-top:4px;">แสดง warning เมื่อ QTY ต่ำกว่า Min × %</span>
+        </div>
       </div>
-    </div>
-    <div class="form-section">
-      <div class="form-section-title">Receiving Details</div>
-      <div class="form-grid">
-        <div class="fld"><label>Qty รับ *</label><input type="number" id="rv-qty" min="1" placeholder="0"></div>
-        <div class="fld"><label>Date รับ</label><input type="date" id="rv-date"></div>
-        <div class="fld"><label>ราคา/หน่วย (฿)</label><input type="number" id="rv-price" min="0" step="0.01" placeholder="0.00"></div>
-        <div class="fld"><label>Invoice No.</label><input type="text" id="rv-inv" placeholder="INV-XXXX"></div>
-        <div class="fld"><label>Supplier</label><input type="text" id="rv-sup2" placeholder="ชื่อ Supplier"></div>
-        <div class="fld"><label>PO Ref</label><input type="text" id="rv-po" placeholder="PO-XXXX"></div>
-        <div class="fld"><label>Received By</label><input type="text" id="rv-by" placeholder="ชื่อผู้รับ"></div>
-        <div class="fld form-full"><label>หมายเหตุ</label><textarea id="rv-note" placeholder="รายละเอียด..."></textarea></div>
-      </div>
-    </div>
-    <div class="btn-row"><button class="btn btn-green" onclick="doReceive()" id="btn-rv">▶ RECEIVE IN</button><button class="btn btn-ghost" onclick="clearF('rv')">CLEAR</button></div>
-  </div>
-</div>
+      <button class="btn btn-primary" onclick="saveSetup()">💾 บันทึกการตั้งค่า</button>
+      <div id="setup-alert" class="alert" style="margin-top:12px;"></div>
 
-<!-- PO -->
-<div id="pg-po" class="page">
-  <div class="pg-head"><div><div class="pg-title">Purchase <span>Order</span></div><div class="pg-sub">แจ้งความต้องการสั่งซื้ออะไหล่</div></div></div>
-  <div class="form-wrap">
-    <div class="form-section">
-      <div class="form-section-title">Part Information</div>
-      <div class="form-grid">
-        <div class="fld form-full"><label>Part ID / Part Name *</label>
-          <div class="psearch-wrap"><input type="text" id="po-ps" placeholder="พิมพ์ Part ID หรือชื่ออะไหล่..." autocomplete="off" oninput="searchPart(this,'po')" onblur="closeDrop('po',300)"><div class="pdrop" id="po-drop"></div></div><input type="hidden" id="po-pid"></div>
-      </div>
-    </div>
-    <div class="form-section">
-      <div class="form-section-title">Order Details</div>
-      <div class="form-grid">
-        <div class="fld"><label>Qty สั่ง *</label><input type="number" id="po-qty" min="1" placeholder="0"></div>
-        <div class="fld"><label>วันที่ต้องการรับ</label><input type="date" id="po-need"></div>
-        <div class="fld"><label>Supplier</label><input type="text" id="po-sup" placeholder="ชื่อ Supplier"></div>
-        <div class="fld"><label>ราคาประมาณ (฿)</label><input type="number" id="po-price" min="0" step="0.01"></div>
-        <div class="fld"><label>Requested By</label><input type="text" id="po-by" placeholder="ชื่อผู้แจ้ง"></div>
-        <div class="fld"><label>Priority</label><select id="po-pri"><option value="Normal">Normal</option><option value="Urgent">🚨 Urgent</option><option value="Critical">🔴 Critical</option></select></div>
-        <div class="fld form-full"><label>เหตุผล</label><textarea id="po-note" placeholder="เหตุผลที่ต้องการสั่งซื้อ..."></textarea></div>
-      </div>
-    </div>
-    <div class="btn-row"><button class="btn btn-navy" onclick="doPO()" id="btn-po">▶ SUBMIT PO REQUEST</button><button class="btn btn-ghost" onclick="clearF('po')">CLEAR</button></div>
-  </div>
-</div>
+      <div class="section-hd" style="margin-top:24px;">ข้อมูลระบบ</div>
+      <table style="width:auto; font-size:13px;">
+        <tr><td style="padding:5px 12px 5px 0; color:var(--text-dim);">Version</td><td style="padding:5px 0;">v4.0 — Apps Script API</td></tr>
+        <tr><td style="padding:5px 12px 5px 0; color:var(--text-dim);">GitHub</td><td style="padding:5px 0;"><a href="https://github.com/tragool-c/kpmt-stock" target="_blank" style="color:var(--orange);">tragool-c/kpmt-stock</a></td></tr>
+        <tr><td style="padding:5px 12px 5px 0; color:var(--text-dim);">Sheets</td><td style="padding:5px 0;" id="info-sheet-id">—</td></tr>
+        <tr><td style="padding:5px 12px 5px 0; color:var(--text-dim);">Last Sync</td><td style="padding:5px 0;" id="info-last-sync">—</td></tr>
+      </table>
 
-<!-- HISTORY -->
-<div id="pg-history" class="page">
-  <div class="pg-head"><div><div class="pg-title">Transaction <span>History</span></div><div class="pg-sub">ประวัติการเคลื่อนไหวสต๊อกทั้งหมด</div></div></div>
-  <div class="tbl-wrap">
-    <div class="tbl-bar">
-      <input class="tbl-search" type="text" id="h-q" placeholder="Search Part ID, Name..." oninput="filterHist()">
-      <select class="tbl-sel" id="h-type" onchange="filterHist()"><option value="">All Types</option><option value="OUT">Issue OUT</option><option value="IN">Receive IN</option><option value="PO">PO Request</option></select>
-      <button class="btn btn-ghost" style="padding:7px 14px;font-size:10px" onclick="loadHist()">↻ REFRESH</button>
-      <div class="tbl-count" id="h-cnt">— records</div>
-    </div>
-    <div class="tbl-scroll"><table><thead><tr><th>Ref No.</th><th>Date</th><th>Type</th><th>Part ID</th><th>Part Name</th><th class="td-r">Qty</th><th>Line</th><th>By</th><th>Note</th></tr></thead><tbody id="h-body"><tr><td colspan="9"><div class="loading-row"><div class="spinner"></div> Loading...</div></td></tr></tbody></table></div>
-  </div>
-</div>
-
-<!-- REPORT -->
-<div id="pg-report" class="page">
-  <div class="pg-head"><div><div class="pg-title">Monthly <span>Report</span></div><div class="pg-sub">สรุปความเคลื่อนไหวสต๊อกประจำเดือน</div></div></div>
-  <div class="rpt-controls"><select class="tbl-sel" id="rpt-m" onchange="loadRpt()" style="font-size:13px;padding:9px 14px"></select><button class="btn btn-orange" style="padding:9px 20px;font-size:11px" onclick="exportCSV()">↓ EXPORT CSV</button></div>
-  <div class="rpt-kpis">
-    <div class="rpt-kpi"><div class="rpt-val" style="color:var(--red)" id="r-out">—</div><div class="rpt-lbl">Issue OUT (ครั้ง)</div></div>
-    <div class="rpt-kpi"><div class="rpt-val" style="color:var(--green)" id="r-in">—</div><div class="rpt-lbl">Receive IN (ครั้ง)</div></div>
-    <div class="rpt-kpi"><div class="rpt-val" style="color:var(--orange)" id="r-val">—</div><div class="rpt-lbl">มูลค่าเบิกออก (฿)</div></div>
-  </div>
-  <div class="tbl-wrap"><div class="tbl-scroll"><table><thead><tr><th>Ref</th><th>Date</th><th>Type</th><th>Part ID</th><th>Part Name</th><th class="td-r">Qty</th><th class="td-r">Price</th><th class="td-r">Total ฿</th><th>Line</th><th>By</th></tr></thead><tbody id="r-body"></tbody></table></div></div>
-</div>
-
-<!-- SETUP -->
-<div id="pg-setup" class="page">
-  <div class="pg-head"><div><div class="pg-title">System <span>Setup</span></div><div class="pg-sub">เชื่อมต่อกับ Google Sheets</div></div></div>
-
-  <div class="setup-hero">
-    <div class="hero-icon">⚙️</div>
-    <div>
-      <div class="hero-title">System Setup</div>
-      <div class="hero-desc">ระบบเชื่อมต่อกับ Google Sheets ผ่าน Apps Script<br>ไม่ต้อง Login ไม่มีหมดอายุ ใช้ได้ 3-5 ปี</div>
-    </div>
-  </div>
-
-  <div class="setup-step done" id="s1">
-    <div class="step-num">1</div>
-    <div style="flex:1">
-      <div class="step-title">Connection Status</div>
-      <div class="step-desc">ระบบเชื่อมต่อ Google Sheets ผ่าน Apps Script อัตโนมัติ</div>
-      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-green" onclick="loadParts()">↻ RELOAD DATA</button>
-        <button class="btn btn-ghost" onclick="doTest()">🔗 TEST CONNECTION</button>
-      </div>
-      <div id="test-msg" style="margin-top:10px;font-size:12px;font-family:var(--mono)"></div>
-    </div>
-  </div>
-
-  <div class="setup-step done" id="s2">
-    <div class="step-num">2</div>
-    <div style="flex:1">
-      <div class="step-title">แชร์ให้น้องสต็อค</div>
-      <div class="step-desc">ส่ง link <b>https://tragool-c.github.io/kpmt-stock/</b> ให้น้องสต็อค<br>เปิดได้ทันที ไม่ต้อง Login ไม่ต้องติดตั้งอะไร</div>
-    </div>
-  </div>
-
-  <div class="setup-step" id="s3">
-    <div class="step-num">3</div>
-    <div style="flex:1">
-      <div class="step-title">Notification Email (อนาคต)</div>
-      <div class="step-desc">ใส่ email ที่ต้องการรับแจ้งเตือนเมื่อสต็อคใกล้หมด</div>
-      <div class="step-inp">
-        <input type="text" id="cfg-email" placeholder="email@example.com (ยังไม่ active)">
-        <button class="btn btn-ghost" style="padding:9px 16px;font-size:10px" onclick="toast('จะเปิดใช้ในอนาคต','info')">SAVE</button>
+      <div style="margin-top:20px;">
+        <button class="btn btn-outline" onclick="loadParts(); showAlert('setup-alert','รีเฟรชข้อมูลแล้ว','success')">🔄 Force Reload Parts</button>
       </div>
     </div>
   </div>
 
-  <div style="background:var(--green-l);border:1px solid var(--green-b);border-left:4px solid var(--green);border-radius:2px;padding:16px 20px;margin-top:8px">
-    <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:6px">✅ Apps Script API</div>
-    <div style="font-size:12px;color:var(--t2);line-height:1.8;font-family:var(--thai)">
-      ไม่ต้อง Login ทุกชั่วโมง · ทุกคนเปิดได้เลยไม่ต้อง Google Account · ใช้ได้ 3-5 ปี · ข้อมูล real-time
-    </div>
-  </div>
-</div>
-
-</div><!-- /#content -->
-
-<div id="toast-area"></div>
-<div class="modal-bg" id="modal">
-  <div class="modal">
-    <div class="modal-hd"><div class="modal-title" id="m-title">Confirm</div><div class="modal-sub" id="m-sub"></div></div>
-    <div class="modal-bd" id="m-body"></div>
-    <div class="modal-ft"><button class="btn btn-orange" id="m-ok">CONFIRM</button><button class="btn btn-ghost" onclick="closeModal()">CANCEL</button></div>
-  </div>
-</div>
+</main>
 
 <script>
-// ============================================================
-//  CONFIG — Apps Script API (ไม่ต้อง Login ทุกชั่วโมง)
-// ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbz5LQgivLuuaGY94-LCkPT720qi7Qw7ktTyZfCLCdKakb5cgiZu3VsvqR2Gf8zKOm15PQ/exec';
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbzEQDBfMsp4lpetE2hnCU-Tm3PnO14IDWIZrh8h197TyMQs-o7fgx9-FY2wk8U6AXKa7w/exec';
+const SHEET_ID    = '1LTo3lSgrEiHLuvCU-YpimkbUPOoAdI0_SsSm85CBXkc';
+const PAGE_SIZE   = 50;
 
-// ============================================================
-//  STATE
-// ============================================================
-const CFG_K = 'kpmt_script_v4';
-const TXN_K = 'kpmt_txn_v4';
-let CFG = JSON.parse(localStorage.getItem(CFG_K) || '{}');
-let TXNS = JSON.parse(localStorage.getItem(TXN_K) || '[]');
-let PARTS = [];
-let cGrp = null, cMov = null;
+// ── State ──
+let allParts    = [];
+let allHistory  = [];
+let filteredParts   = [];
+let filteredHistory = [];
+let partsPage   = 1;
+let histPage    = 1;
 
-// ============================================================
-//  INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  setDates(); buildMonths();
-  renderDash(); renderHist(TXNS);
-  // Auto-load parts on startup
-  loadParts();
-  setConn('load', 'LOADING...');
-});
-
-function loadCFG() {}
-function saveCFG() {
-  localStorage.setItem(CFG_K, JSON.stringify(CFG));
-  toast('Settings saved ✓', 'success');
+// ── Load config ──
+function getCfg() {
+  return {
+    apiUrl:    localStorage.getItem('kpmt_api')       || DEFAULT_API,
+    username:  localStorage.getItem('kpmt_user')      || '',
+    threshold: Number(localStorage.getItem('kpmt_thr')) || 20,
+  };
 }
 
-function setDates() {
-  const t = new Date().toISOString().split('T')[0];
-  ['is-date','rv-date','po-need'].forEach(id => { const e=document.getElementById(id); if(e) e.value=t; });
-}
-
-// ============================================================
-//  APPS SCRIPT API — ไม่ต้อง Login ไม่หมดอายุ
-// ============================================================
-async function apiCall(params) {
-  const url = params.method === 'POST'
-    ? API_URL
-    : API_URL + '?' + new URLSearchParams(params.query);
-  const opts = params.method === 'POST'
-    ? { method:'POST', body: JSON.stringify(params.body) }
-    : {};
-  const r = await fetch(url, opts);
-  const data = await r.json();
-  if (!data.ok) throw new Error(data.msg || 'API Error');
+// ══════════════════════════════════════════════
+// API CALL (GET only — no CORS issue)
+// ══════════════════════════════════════════════
+async function api(action, params = {}) {
+  const cfg = getCfg();
+  const url = new URL(cfg.apiUrl);
+  url.searchParams.set('action', action);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res  = await fetch(url.toString());
+  const data = await res.json();
   return data;
 }
 
-async function doGoogleLogin() {
-  toast('กำลังเชื่อมต่อ...', 'info');
-  try {
-    await loadParts();
-    document.getElementById('s2').classList.add('done');
-  } catch(e) { toast('เชื่อมต่อไม่ได้: '+e.message, 'error'); }
-}
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init() {
+  // Fill setup
+  const cfg = getCfg();
+  document.getElementById('setup-api-url').value   = cfg.apiUrl;
+  document.getElementById('setup-username').value  = cfg.username;
+  document.getElementById('setup-threshold').value = cfg.threshold;
+  document.getElementById('info-sheet-id').textContent = SHEET_ID;
+  document.getElementById('issue-by').value   = cfg.username;
+  document.getElementById('receive-by').value = cfg.username;
 
-async function doTest() {
-  const el = document.getElementById('test-msg');
-  el.textContent = 'Testing...'; el.style.color='var(--t3)';
+  // Ping
+  setConn('loading');
   try {
-    const r = await apiCall({query:{action:'ping'}});
-    el.textContent = '✓ ' + r.msg;
-    el.style.color = 'var(--green)';
-    document.getElementById('s2').classList.add('done');
-    document.getElementById('s3').classList.add('done');
-  } catch(e) { el.textContent = '✗ '+e.message; el.style.color='var(--red)'; }
-}
-
-// ============================================================
-//  LOAD PARTS FROM APPS SCRIPT
-// ============================================================
-async function loadParts() {
-  setConn('load', 'LOADING...');
-  try {
-    toast('Loading Parts...', 'info');
-    const r = await apiCall({query:{action:'getParts'}});
-    PARTS = r.parts;
-    toast(\`Loaded \${PARTS.length} parts ✓\`, 'success');
-    setConn('ok', 'CONNECTED');
-    renderDash();
-    await loadTxnsFromSheets();
+    const r = await api('ping');
+    if (r.ok) {
+      setConn('ok');
+      await loadParts();
+      await loadHistory();
+    } else {
+      setConn('error');
+    }
   } catch(e) {
-    setConn('err', 'CONNECTION ERROR');
-    toast('Load failed: '+e.message, 'error');
-    throw e;
+    setConn('error');
+    console.error(e);
   }
 }
 
-async function loadTxnsFromSheets() {
+function setConn(state) {
+  const dot = document.getElementById('conn-dot');
+  const lbl = document.getElementById('conn-label');
+  dot.className = 'dot';
+  if (state === 'ok') {
+    dot.classList.add('green');
+    lbl.textContent = 'CONNECTED';
+    document.getElementById('info-last-sync').textContent = new Date().toLocaleTimeString('th-TH');
+  } else if (state === 'error') {
+    dot.classList.add('red');
+    lbl.textContent = 'NOT CONNECTED';
+  } else {
+    dot.classList.add('pulse');
+    lbl.textContent = 'กำลังเชื่อมต่อ...';
+  }
+}
+
+// ══════════════════════════════════════════════
+// LOAD PARTS
+// ══════════════════════════════════════════════
+async function loadParts() {
   try {
-    const r = await apiCall({query:{action:'getLog'}});
-    TXNS = r.txns;
-    localStorage.setItem(TXN_K, JSON.stringify(TXNS));
-    renderHist(TXNS);
-  } catch(e) {}
+    const r = await api('getParts');
+    if (!r.ok) { console.error(r.error); return; }
+    allParts = r.parts || [];
+    filteredParts = [...allParts];
+    partsPage = 1;
+    renderDashboard();
+    renderPartsTable();
+  } catch(e) { console.error(e); }
 }
 
-async function writeTxn(t) {
-  TXNS.push(t);
-  localStorage.setItem(TXN_K, JSON.stringify(TXNS));
-  await apiCall({method:'POST', body:{action:'addTxn', ...t}});
-}
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard() {
+  const cfg = getCfg();
+  let total = 0, instock = 0, low = 0, empty = 0;
+  const lowItems = [];
 
-// ============================================================
-//  STOCK CALC
-// ============================================================
-function stock(id) {
-  const p = PARTS.find(x=>x.id===id); if(!p) return{bal:0,min:0,max:0,price:0,unit:''};
-  let bal = p.oq;
-  TXNS.filter(t=>t.pid===id).forEach(t=>{ if(t.type==='IN') bal+=t.qty; if(t.type==='OUT') bal-=t.qty; });
-  return {bal, min:p.min, max:p.max, price:p.price, unit:p.unit};
-}
-function stClass(bal,min){ if(bal<=0) return 'zero'; if(bal<min) return 'danger'; if(bal<=min*1.2) return 'warn'; return 'ok'; }
-function stLabel(s){ return{zero:'⚫ ZERO STOCK',danger:'🔴 BELOW MIN',warn:'🟡 NEAR MIN',ok:'🟢 OK'}[s]||''; }
+  allParts.forEach(p => {
+    total++;
+    const qty = Number(p['QTY']) || 0;
+    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    if (qty === 0)       { empty++; }
+    else if (min > 0 && qty <= min) { low++; lowItems.push(p['Part No']); }
+    else                 { instock++; }
+  });
 
-// ============================================================
-//  PART SEARCH
-// ============================================================
-function searchPart(inp, px) {
-  const q = inp.value.toLowerCase(), dd = document.getElementById(px+'-drop');
-  if (!q) { dd.classList.remove('open'); return; }
-  const ms = PARTS.filter(p=>p.id.toLowerCase().includes(q)||p.name.toLowerCase().includes(q)||p.model.toLowerCase().includes(q)).slice(0,25);
-  if (!ms.length) { dd.classList.remove('open'); return; }
-  dd.innerHTML = ms.map(p => {
-    const {bal} = stock(p.id), sc = stClass(bal,p.min);
-    const clr = {ok:'var(--green)',warn:'var(--amber)',danger:'var(--red)',zero:'var(--t3)'}[sc];
-    return `<div class="pd-row" onmousedown="pickPart('${p.id}','${px}')">
-      <span class="pd-id">${p.id}</span><span class="pd-name">${p.name}</span>
-      <span class="pd-bal" style="color:${clr}">${bal} ${p.unit}</span></div>`;
-  }).join('');
-  dd.classList.add('open');
-}
-function closeDrop(px,ms){ setTimeout(()=>document.getElementById(px+'-drop')?.classList.remove('open'),ms); }
-function pickPart(id,px) {
-  const p = PARTS.find(x=>x.id===id); if(!p) return;
-  document.getElementById(px+'-ps').value = p.id+' — '+p.name;
-  document.getElementById(px+'-pid').value = id;
-  document.getElementById(px+'-drop').classList.remove('open');
-  const {bal} = stock(id);
-  if(px==='is'){
-    const b=document.getElementById('is-bar'); b.classList.add('show');
-    document.getElementById('is-loc').textContent=p.loc||'—';
-    document.getElementById('is-bal').textContent=bal+' '+p.unit;
-    document.getElementById('is-mm').textContent=p.min+'/'+p.max;
-    document.getElementById('is-unit').textContent=p.unit;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-instock').textContent = instock;
+  document.getElementById('stat-low').textContent     = low;
+  document.getElementById('stat-empty').textContent   = empty;
+  document.getElementById('parts-count').textContent  = total;
+
+  // Low stock bar
+  const bar = document.getElementById('low-stock-bar');
+  if (lowItems.length > 0) {
+    bar.classList.add('show');
+    document.getElementById('low-stock-list').textContent =
+      lowItems.slice(0, 5).join(', ') + (lowItems.length > 5 ? ` +${lowItems.length-5} รายการ` : '');
+  } else {
+    bar.classList.remove('show');
   }
-  if(px==='rv'){
-    const b=document.getElementById('rv-bar'); b.classList.add('show');
-    document.getElementById('rv-loc').textContent=p.loc||'—';
-    document.getElementById('rv-bal').textContent=bal+' '+p.unit;
-    document.getElementById('rv-sup').textContent=p.supplier||'—';
-    if(p.supplier) document.getElementById('rv-sup2').value=p.supplier;
-    if(p.price) document.getElementById('rv-price').value=p.price;
-  }
-  if(px==='po'){
-    if(p.supplier) document.getElementById('po-sup').value=p.supplier;
-    if(p.price) document.getElementById('po-price').value=p.price;
-  }
-}
 
-// ============================================================
-//  ISSUE OUT
-// ============================================================
-function doIssue() {
-  const pid=g('is-pid').value, qty=+g('is-qty').value, date=g('is-date').value;
-  const line=g('is-line').value, reason=g('is-reason').value, by=g('is-by').value;
-  const ref=g('is-ref').value, note=g('is-note').value;
-  if(!pid){toast('กรุณาเลือก Part ก่อน','error');return;}
-  if(!qty||qty<1){toast('กรุณาระบุจำนวน','error');return;}
-  const p=PARTS.find(x=>x.id===pid); if(!p){toast('ไม่พบ Part','error');return;}
-  const {bal}=stock(pid);
-  if(qty>bal){toast(`ยอดสต๊อกไม่พอ (มี ${bal} ${p.unit})`,'error');return;}
-  const t={ref:'TX-'+date.replace(/-/g,'')+'-'+rnd(),date,pid,pname:p.name,type:'OUT',qty,unit:p.unit,ref_no:ref,used_for:reason,by,note,line,price:p.price,total:qty*p.price};
-  confirm2('CONFIRM ISSUE OUT',`<b>${p.name}</b> (${pid})<br>Qty: <b style="color:var(--red)">${qty} ${p.unit}</b><br>ยอดหลังเบิก: ${bal-qty} ${p.unit}`,
-    async()=>{ document.getElementById('btn-is').disabled=true;
-      try{ await writeTxn(t); toast('Issue OUT saved ✓','success'); clearF('is'); renderDash(); renderHist(TXNS); }
-      catch(e){ toast(e.message,'error'); } finally{ document.getElementById('btn-is').disabled=false; } });
-}
+  // Low stock table
+  const tbody = document.getElementById('dash-low-tbl');
+  const lowParts = allParts.filter(p => {
+    const qty = Number(p['QTY']) || 0;
+    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    return qty === 0 || (min > 0 && qty <= min);
+  }).slice(0, 20);
 
-// ============================================================
-//  RECEIVE IN
-// ============================================================
-function doReceive() {
-  const pid=g('rv-pid').value, qty=+g('rv-qty').value, date=g('rv-date').value;
-  const price=+g('rv-price').value||0, inv=g('rv-inv').value, sup=g('rv-sup2').value;
-  const po=g('rv-po').value, by=g('rv-by').value, note=g('rv-note').value;
-  if(!pid){toast('กรุณาเลือก Part ก่อน','error');return;}
-  if(!qty||qty<1){toast('กรุณาระบุจำนวน','error');return;}
-  const p=PARTS.find(x=>x.id===pid); if(!p){toast('ไม่พบ Part','error');return;}
-  const {bal}=stock(pid);
-  const t={ref:'GRN-'+date.replace(/-/g,'')+'-'+rnd(),date,pid,pname:p.name,type:'IN',qty,unit:p.unit,ref_no:po,inv_no:inv,supplier:sup,by,note,price,total:qty*price};
-  confirm2('CONFIRM RECEIVE IN',`<b>${p.name}</b> (${pid})<br>Qty: <b style="color:var(--green)">${qty} ${p.unit}</b><br>ยอดหลังรับ: ${bal+qty} ${p.unit}`,
-    async()=>{ document.getElementById('btn-rv').disabled=true;
-      try{ await writeTxn(t); toast('Receive IN saved ✓','success'); clearF('rv'); renderDash(); renderHist(TXNS); }
-      catch(e){ toast(e.message,'error'); } finally{ document.getElementById('btn-rv').disabled=false; } });
-}
-
-// ============================================================
-//  PO
-// ============================================================
-async function doPO() {
-  const pid=g('po-pid').value, qty=+g('po-qty').value;
-  const need=g('po-need').value, sup=g('po-sup').value;
-  const price=+g('po-price').value||0, by=g('po-by').value;
-  const pri=g('po-pri').value, note=g('po-note').value;
-  if(!pid){toast('กรุณาเลือก Part ก่อน','error');return;}
-  if(!qty||qty<1){toast('กรุณาระบุจำนวน','error');return;}
-  const p=PARTS.find(x=>x.id===pid); if(!p){toast('ไม่พบ Part','error');return;}
-  const t={ref:'PO-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+rnd(),
-    date:new Date().toISOString().slice(0,10),pid,pname:p.name,type:'PO',qty,unit:p.unit,
-    used_for:pri,supplier:sup,by,note:(note?note+' | ':'')+`Need by:${need||'—'}`,price,total:qty*price};
-  document.getElementById('btn-po').disabled=true;
-  try{ await writeTxn(t); toast('PO Request saved ✓','success'); clearF('po'); renderHist(TXNS); }
-  catch(e){ toast(e.message,'error'); } finally{ document.getElementById('btn-po').disabled=false; }
-}
-
-// ============================================================
-//  DASHBOARD
-// ============================================================
-function renderDash() {
-  if(!PARTS.length){
-    ['d-zero','d-low','d-val','d-total','tk-zero','tk-low','tk-val','tk-total'].forEach(i=>set(i,'—'));
-    document.getElementById('list-zero').innerHTML='<div class="empty-state"><div class="empty-icon">⚙️</div><div class="empty-title">Not Connected</div><div class="empty-desc">ไปที่แท็บ Setup แล้ว Login Google</div></div>';
-    document.getElementById('list-low').innerHTML='';
+  if (lowParts.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--green);">✅ ทุกรายการมีสต็อกเพียงพอ</td></tr>`;
     return;
   }
-  let zero=[],low=[],val=0,ok=0;
-  PARTS.forEach(p=>{ const {bal}=stock(p.id); val+=bal*p.price; const sc=stClass(bal,p.min);
-    if(sc==='zero') zero.push({...p,bal}); else if(sc==='danger') low.push({...p,bal}); else ok++; });
-  const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v;
-  set('d-zero',zero.length); set('d-low',low.length); set('d-val','฿'+fmt(val)); set('d-total',PARTS.length.toLocaleString());
-  set('tk-zero',zero.length); set('tk-low',low.length); set('tk-val',fmt(val)); set('tk-total',PARTS.length.toLocaleString());
-  set('cnt-zero',zero.length); set('cnt-low',low.length);
-  set('dash-updated','UPDATED: '+new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}));
-  document.getElementById('list-zero').innerHTML=zero.length
-    ? zero.slice(0,15).map(p=>`<div class="alert-item"><div class="al-bar red"></div><div class="al-info"><div class="al-name">${p.name}</div><div class="al-id">${p.id} · ${p.loc}</div></div><span class="al-badge red">ZERO</span><span class="al-qty">0 ${p.unit}</span></div>`).join('')
-    : '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No Zero Stock</div></div>';
-  document.getElementById('list-low').innerHTML=low.length
-    ? low.slice(0,15).map(p=>`<div class="alert-item"><div class="al-bar amber"></div><div class="al-info"><div class="al-name">${p.name}</div><div class="al-id">${p.id} · Min:${p.min}</div></div><span class="al-badge amber">LOW</span><span class="al-qty">${p.bal}/${p.min}</span></div>`).join('')
-    : '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">All Above Min</div></div>';
-  drawCharts();
+
+  tbody.innerHTML = lowParts.map(p => {
+    const qty = Number(p['QTY']) || 0;
+    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    const badge = qty === 0
+      ? '<span class="badge badge-empty">OUT</span>'
+      : '<span class="badge badge-low">LOW</span>';
+    return `<tr>
+      <td>${esc(p['Part No']||'')}</td>
+      <td>${esc(p['Description']||p['Desc']||p['NAME']||'')}</td>
+      <td><strong>${qty}</strong></td>
+      <td>${min||'—'}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
 }
 
-function drawCharts() {
-  const grpM={};
-  PARTS.forEach(p=>{ const {bal}=stock(p.id); grpM[p.grp||'OTHER']=(grpM[p.grp||'OTHER']||0)+bal*p.price; });
-  const top10=Object.entries(grpM).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const gc=document.getElementById('ch-group');
-  if(cGrp) cGrp.destroy();
-  cGrp=new Chart(gc,{type:'bar',data:{labels:top10.map(x=>x[0].substring(0,14)),datasets:[{label:'Value ฿',data:top10.map(x=>x[1]),backgroundColor:'rgba(232,105,10,.8)',borderRadius:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#94A3B8',font:{size:9},maxRotation:35}},y:{ticks:{color:'#94A3B8',font:{size:9},callback:v=>'฿'+(v/1000).toFixed(0)+'K'},grid:{color:'rgba(0,0,0,.04)'}}}}});
-  const days=[],inD=[],outD=[];
-  for(let i=29;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=d.toISOString().split('T')[0]; days.push(k.slice(5));
-    const tx=TXNS.filter(t=>t.date===k); inD.push(tx.filter(t=>t.type==='IN').reduce((s,t)=>s+t.qty,0)); outD.push(tx.filter(t=>t.type==='OUT').reduce((s,t)=>s+t.qty,0)); }
-  const mc=document.getElementById('ch-move');
-  if(cMov) cMov.destroy();
-  cMov=new Chart(mc,{type:'line',data:{labels:days,datasets:[
-    {label:'IN',data:inD,borderColor:'#34D399',backgroundColor:'rgba(52,211,153,.06)',tension:.35,pointRadius:2},
-    {label:'OUT',data:outD,borderColor:'#F87171',backgroundColor:'rgba(248,113,113,.06)',tension:.35,pointRadius:2}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:'#94A3B8',font:{size:10}}}},
-    scales:{x:{ticks:{color:'#94A3B8',font:{size:9},maxTicksLimit:8}},y:{beginAtZero:true,ticks:{color:'#94A3B8',font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+// ══════════════════════════════════════════════
+// PARTS TABLE
+// ══════════════════════════════════════════════
+function filterParts() {
+  const q   = document.getElementById('parts-search').value.toLowerCase();
+  const st  = document.getElementById('parts-filter-status').value;
+  filteredParts = allParts.filter(p => {
+    const match = !q ||
+      (p['Part No']||'').toLowerCase().includes(q) ||
+      (p['Description']||p['Desc']||'').toLowerCase().includes(q);
+    let statusOk = true;
+    if (st) {
+      const qty = Number(p['QTY']) || 0;
+      const min = Number(p['Min']||p['MIN']||0);
+      if (st === 'empty') statusOk = qty === 0;
+      else if (st === 'low')   statusOk = qty > 0 && min > 0 && qty <= min;
+      else if (st === 'ok')    statusOk = qty > 0 && !(min > 0 && qty <= min);
+    }
+    return match && statusOk;
+  });
+  partsPage = 1;
+  renderPartsTable();
 }
 
-// ============================================================
-//  HISTORY
-// ============================================================
-async function loadHist() {
-  try{ await loadTxnsFromSheets(); }catch(e){}
-  renderHist(TXNS);
-}
-function filterHist(){ renderHist(TXNS); }
-function renderHist(all){
-  const q=(g('h-q')?.value||'').toLowerCase(), tp=g('h-type')?.value||'';
-  const f=all.filter(t=>(!tp||t.type===tp)&&(!q||t.pid?.toLowerCase().includes(q)||t.pname?.toLowerCase().includes(q)||(t.by||'').toLowerCase().includes(q))).sort((a,b)=>b.date?.localeCompare(a.date));
-  set('h-cnt',f.length+' records');
-  document.getElementById('h-body').innerHTML=f.length
-    ? f.map(t=>`<tr><td class="td-mono">${t.ref||''}</td><td class="td-mono">${t.date||''}</td><td><span class="txn-pill ${t.type==='OUT'?'out':t.type==='IN'?'in':'po'}">${t.type||''}</span></td><td class="td-mono">${t.pid||''}</td><td>${t.pname||''}</td><td class="td-r td-mono" style="color:${t.type==='OUT'?'var(--red)':'var(--green)'}">${t.type==='OUT'?'−':'+'}<b>${t.qty||0}</b></td><td style="font-size:11px">${t.line||t.used_for||''}</td><td>${t.by||''}</td><td style="color:var(--t3);font-size:11px">${t.note||''}</td></tr>`).join('')
-    : '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No Records</div></div></td></tr>';
+function renderPartsTable() {
+  const tbody  = document.getElementById('parts-tbl');
+  const total  = filteredParts.length;
+  const pages  = Math.ceil(total / PAGE_SIZE) || 1;
+  partsPage    = Math.min(partsPage, pages);
+  const start  = (partsPage - 1) * PAGE_SIZE;
+  const slice  = filteredParts.slice(start, start + PAGE_SIZE);
+
+  if (slice.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="padding:20px; text-align:center; color:var(--text-dim);">ไม่พบข้อมูล</td></tr>`;
+    document.getElementById('parts-pager').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = slice.map((p, i) => {
+    const qty = Number(p['QTY']) || 0;
+    const min = Number(p['Min']||p['MIN']||0);
+    let badge;
+    if (qty === 0) badge = '<span class="badge badge-empty">OUT</span>';
+    else if (min > 0 && qty <= min) badge = '<span class="badge badge-low">LOW</span>';
+    else badge = '<span class="badge badge-ok">OK</span>';
+
+    return `<tr>
+      <td style="color:var(--text-dim); font-size:11px;">${start+i+1}</td>
+      <td><strong>${esc(p['Part No']||'')}</strong></td>
+      <td>${esc(p['Description']||p['Desc']||p['NAME']||'')}</td>
+      <td>${esc(p['Unit']||p['UNIT']||'')}</td>
+      <td>${qty}</td>
+      <td>${min||'—'}</td>
+      <td style="font-size:12px; color:var(--text-dim);">${esc(p['Location']||p['LOC']||'')}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+
+  renderPager('parts-pager', pages, partsPage, pg => { partsPage = pg; renderPartsTable(); });
 }
 
-// ============================================================
-//  REPORT
-// ============================================================
-function buildMonths(){ const s=g('rpt-m'),n=new Date(); for(let i=0;i<12;i++){const d=new Date(n.getFullYear(),n.getMonth()-i,1);s.add(new Option(d.toLocaleDateString('th-TH',{year:'numeric',month:'long'}),d.toISOString().slice(0,7)));} loadRpt(); }
-function loadRpt(){
-  const m=g('rpt-m').value, tx=TXNS.filter(t=>t.date?.startsWith(m));
-  const out=tx.filter(t=>t.type==='OUT'), inT=tx.filter(t=>t.type==='IN');
-  const val=out.reduce((s,t)=>s+(t.total||0),0);
-  set('r-out',out.length); set('r-in',inT.length); set('r-val','฿'+val.toLocaleString('en',{minimumFractionDigits:0}));
-  document.getElementById('r-body').innerHTML=tx.sort((a,b)=>b.date?.localeCompare(a.date)).map(t=>`<tr><td class="td-mono">${t.ref||''}</td><td class="td-mono">${t.date||''}</td><td><span class="txn-pill ${t.type==='OUT'?'out':t.type==='IN'?'in':'po'}">${t.type||''}</span></td><td class="td-mono">${t.pid||''}</td><td>${t.pname||''}</td><td class="td-r">${t.qty||0}</td><td class="td-r td-mono">${(t.price||0).toLocaleString()}</td><td class="td-r td-mono">${(t.total||0).toLocaleString()}</td><td style="font-size:11px">${t.line||''}</td><td>${t.by||''}</td></tr>`).join('')
-    || '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No Data This Month</div></div></td></tr>';
-}
-function exportCSV(){
-  const m=g('rpt-m').value, tx=TXNS.filter(t=>t.date?.startsWith(m));
-  if(!tx.length){toast('No data this month','info');return;}
-  const h='Ref,Date,Type,Part_ID,Part_Name,Qty,Price,Total,Line,By,Note';
-  const rows=tx.map(t=>[t.ref,t.date,t.type,t.pid,t.pname,t.qty,t.price||0,t.total||0,t.line||'',t.by||'',t.note||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+h+'\n'+rows],{type:'text/csv;charset=utf-8;'})); a.download=`KPMT_Report_${m}.csv`; a.click();
-  toast('CSV exported ✓','success');
+// ══════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════
+async function loadHistory() {
+  try {
+    const r = await api('getHistory');
+    if (!r.ok) return;
+    allHistory     = r.history || [];
+    filteredHistory = [...allHistory];
+    histPage = 1;
+    renderHistTable();
+    updateRecentTables();
+  } catch(e) { console.error(e); }
 }
 
-// ============================================================
-//  UI HELPERS
-// ============================================================
-function showTab(t){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active')); document.getElementById('pg-'+t)?.classList.add('active'); document.querySelector(`[data-tab="${t}"]`)?.classList.add('active'); if(t==='history') loadHist(); if(t==='report') loadRpt(); }
-function gotoSetup(){ showTab('setup'); }
-function clearF(px){ const ids={is:['is-ps','is-pid','is-qty','is-reason','is-by','is-ref','is-note'],rv:['rv-ps','rv-pid','rv-qty','rv-price','rv-inv','rv-sup2','rv-po','rv-by','rv-note'],po:['po-ps','po-pid','po-qty','po-sup','po-price','po-by','po-note']}; (ids[px]||[]).forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}); ['is-bar','rv-bar'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('show')}); setDates(); }
-function setConn(s,t){ document.getElementById('c-dot').className='dot '+s; document.getElementById('conn-text').textContent=t; }
-function g(id){ return document.getElementById(id); }
-function set(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
-function rnd(){ return String(Math.floor(Math.random()*9000)+1000); }
-function toast(msg,type='info'){ const a=document.getElementById('toast-area'),el=document.createElement('div'); el.className='toast '+type; el.textContent=msg; a.appendChild(el); setTimeout(()=>el.remove(),3200); }
-function confirm2(title,body,fn){ g('m-title').textContent=title; g('m-body').innerHTML=body; g('modal').classList.add('open'); g('m-ok').onclick=()=>{closeModal();fn();}; }
-function closeModal(){ g('modal').classList.remove('open'); }
-function loadScript(src){ return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);}); }
+function filterHistory() {
+  const q  = document.getElementById('hist-search').value.toLowerCase();
+  const tp = document.getElementById('hist-filter-type').value;
+  filteredHistory = allHistory.filter(h => {
+    const match = !q ||
+      (h['Part No']||'').toLowerCase().includes(q) ||
+      (h['User']||'').toLowerCase().includes(q) ||
+      (h['Note']||'').toLowerCase().includes(q);
+    return match && (!tp || h['Type'] === tp);
+  });
+  histPage = 1;
+  renderHistTable();
+}
+
+function renderHistTable() {
+  const tbody = document.getElementById('history-tbl');
+  const total = filteredHistory.length;
+  const pages = Math.ceil(total / PAGE_SIZE) || 1;
+  histPage    = Math.min(histPage, pages);
+  const start = (histPage-1)*PAGE_SIZE;
+  const slice = filteredHistory.slice(start, start+PAGE_SIZE);
+
+  if (slice.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; text-align:center; color:var(--text-dim);">ยังไม่มีประวัติ</td></tr>`;
+    document.getElementById('hist-pager').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = slice.map(h => {
+    const isIssue   = h['Type'] === 'ISSUE';
+    const badgeClass = isIssue ? 'hist-issue' : 'hist-receive';
+    const label      = isIssue ? '📤 OUT' : '📥 IN';
+    const dt = h['Date'] ? new Date(h['Date']).toLocaleString('th-TH', {
+      year:'2-digit', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit'
+    }) : '—';
+    return `<tr>
+      <td style="font-size:12px; color:var(--text-dim);">${dt}</td>
+      <td><span class="badge ${badgeClass}">${label}</span></td>
+      <td>${esc(h['Part No']||'')}</td>
+      <td><strong>${h['QTY']||0}</strong></td>
+      <td>${esc(h['User']||'')}</td>
+      <td style="color:var(--text-dim); font-size:12px;">${esc(h['Note']||'')}</td>
+    </tr>`;
+  }).join('');
+
+  renderPager('hist-pager', pages, histPage, pg => { histPage = pg; renderHistTable(); });
+}
+
+function updateRecentTables() {
+  const issues   = allHistory.filter(h => h['Type']==='ISSUE').slice(0,5);
+  const receives = allHistory.filter(h => h['Type']==='RECEIVE').slice(0,5);
+
+  const fmtRow = (h, cols) => {
+    const dt = h['Date'] ? new Date(h['Date']).toLocaleString('th-TH', {
+      month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'
+    }) : '—';
+    return `<tr><td style="font-size:12px;color:var(--text-dim);">${dt}</td>${cols(h)}</tr>`;
+  };
+
+  const it = document.getElementById('issue-recent-tbl');
+  it.innerHTML = issues.length ? issues.map(h => fmtRow(h, h =>
+    `<td>${esc(h['Part No']||'')}</td><td>${h['QTY']||0}</td><td>${esc(h['User']||'')}</td><td style="font-size:12px;color:var(--text-dim);">${esc(h['Note']||'')}</td>`
+  )).join('') : `<tr><td colspan="5" style="color:var(--text-dim);padding:12px;">ยังไม่มีรายการ</td></tr>`;
+
+  const rt = document.getElementById('receive-recent-tbl');
+  rt.innerHTML = receives.length ? receives.map(h => fmtRow(h, h =>
+    `<td>${esc(h['Part No']||'')}</td><td>${h['QTY']||0}</td><td>${esc(h['User']||'')}</td><td style="font-size:12px;color:var(--text-dim);">${esc(h['Note']||'')}</td>`
+  )).join('') : `<tr><td colspan="5" style="color:var(--text-dim);padding:12px;">ยังไม่มีรายการ</td></tr>`;
+}
+
+// ══════════════════════════════════════════════
+// AUTOCOMPLETE
+// ══════════════════════════════════════════════
+function acSearch(val, type) {
+  const list = document.getElementById(`${type}-ac`);
+  if (!val || val.length < 1) { list.classList.remove('open'); return; }
+  const q = val.toLowerCase();
+  const matches = allParts.filter(p =>
+    (p['Part No']||'').toLowerCase().includes(q) ||
+    (p['Description']||p['Desc']||'').toLowerCase().includes(q)
+  ).slice(0, 10);
+
+  if (matches.length === 0) { list.classList.remove('open'); return; }
+
+  list.innerHTML = matches.map(p => {
+    const qty = Number(p['QTY']) || 0;
+    const col = qty === 0 ? 'var(--red)' : qty <= 3 ? 'var(--yellow)' : 'var(--green)';
+    return `<div class="ac-item" onclick="acSelect('${esc(p['Part No']||'')}', '${esc(p['Description']||p['Desc']||'')}', ${qty}, '${type}')">
+      <strong>${esc(p['Part No']||'')}</strong> — ${esc(p['Description']||p['Desc']||'')}
+      <small style="float:right; color:${col};">QTY: ${qty}</small>
+    </div>`;
+  }).join('');
+  list.classList.add('open');
+}
+
+function acSelect(partNo, desc, qty, type) {
+  document.getElementById(`${type}-search`).value  = `${partNo} — ${desc}`;
+  document.getElementById(`${type}-partno`).value  = partNo;
+  document.getElementById(`${type}-ac`).classList.remove('open');
+  if (type === 'issue') {
+    const info = document.getElementById('issue-stock-info');
+    const col  = qty === 0 ? 'var(--red)' : qty <= 3 ? 'var(--yellow)' : 'var(--green)';
+    info.innerHTML = `สต็อกปัจจุบัน: <strong style="color:${col};">${qty} ชิ้น</strong>`;
+  }
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.autocomplete-wrap')) {
+    document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
+  }
+});
+
+// ══════════════════════════════════════════════
+// SUBMIT ISSUE
+// ══════════════════════════════════════════════
+async function submitIssue() {
+  const partNo  = document.getElementById('issue-partno').value.trim();
+  const qty     = Number(document.getElementById('issue-qty').value);
+  const issuedBy= document.getElementById('issue-by').value.trim();
+  const purpose = document.getElementById('issue-purpose').value.trim();
+
+  if (!partNo) return showAlert('issue-alert', 'กรุณาเลือก Part No', 'error');
+  if (!qty || qty < 1) return showAlert('issue-alert', 'กรุณาระบุจำนวนที่ถูกต้อง', 'error');
+
+  const btn = document.getElementById('issue-btn');
+  btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...';
+
+  try {
+    const r = await api('issuePart', { partNo, qty, issuedBy, purpose });
+    if (r.ok) {
+      showAlert('issue-alert', `✅ เบิก ${qty} ชิ้น (${partNo}) สำเร็จ`, 'success');
+      clearForm('issue');
+      await loadParts();
+      await loadHistory();
+    } else {
+      showAlert('issue-alert', `❌ Error: ${r.error}`, 'error');
+    }
+  } catch(e) {
+    showAlert('issue-alert', '❌ เชื่อมต่อ API ไม่ได้', 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '📤 ยืนยันเบิก';
+  }
+}
+
+// ══════════════════════════════════════════════
+// SUBMIT RECEIVE
+// ══════════════════════════════════════════════
+async function submitReceive() {
+  const partNo    = document.getElementById('receive-partno').value.trim();
+  const qty       = Number(document.getElementById('receive-qty').value);
+  const receivedBy= document.getElementById('receive-by').value.trim();
+  const note      = document.getElementById('receive-note').value.trim();
+
+  if (!partNo) return showAlert('receive-alert', 'กรุณาเลือก Part No', 'error');
+  if (!qty || qty < 1) return showAlert('receive-alert', 'กรุณาระบุจำนวนที่ถูกต้อง', 'error');
+
+  const btn = document.getElementById('receive-btn');
+  btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...';
+
+  try {
+    const r = await api('receivePart', { partNo, qty, receivedBy, note });
+    if (r.ok) {
+      showAlert('receive-alert', `✅ รับเข้า ${qty} ชิ้น (${partNo}) สำเร็จ`, 'success');
+      clearForm('receive');
+      await loadParts();
+      await loadHistory();
+    } else {
+      showAlert('receive-alert', `❌ Error: ${r.error}`, 'error');
+    }
+  } catch(e) {
+    showAlert('receive-alert', '❌ เชื่อมต่อ API ไม่ได้', 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '📥 ยืนยันรับเข้า';
+  }
+}
+
+// ══════════════════════════════════════════════
+// SETUP
+// ══════════════════════════════════════════════
+function saveSetup() {
+  localStorage.setItem('kpmt_api',  document.getElementById('setup-api-url').value.trim());
+  localStorage.setItem('kpmt_user', document.getElementById('setup-username').value.trim());
+  localStorage.setItem('kpmt_thr',  document.getElementById('setup-threshold').value);
+  showAlert('setup-alert', '✅ บันทึกการตั้งค่าแล้ว', 'success');
+  document.getElementById('issue-by').value   = document.getElementById('setup-username').value;
+  document.getElementById('receive-by').value = document.getElementById('setup-username').value;
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function showTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${id}`).classList.add('active');
+  el.classList.add('active');
+  if (id === 'history') loadHistory();
+  if (id === 'parts')   renderPartsTable();
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.className = `alert alert-${type} show`;
+  el.textContent = msg;
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function clearForm(type) {
+  document.getElementById(`${type}-search`).value  = '';
+  document.getElementById(`${type}-partno`).value  = '';
+  document.getElementById(`${type}-qty`).value     = '1';
+  if (type === 'issue') {
+    document.getElementById('issue-purpose').value = '';
+    document.getElementById('issue-stock-info').textContent = '';
+  } else {
+    document.getElementById('receive-note').value  = '';
+  }
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderPager(id, pages, current, cb) {
+  if (pages <= 1) { document.getElementById(id).innerHTML = ''; return; }
+  let html = `<span style="color:var(--text-dim); font-size:12px;">หน้า ${current}/${pages}</span>`;
+  html += `<button class="page-btn" onclick="(${cb})(${Math.max(1,current-1)})" ${current<=1?'disabled':''}>‹</button>`;
+  for (let p = Math.max(1,current-2); p <= Math.min(pages,current+2); p++) {
+    html += `<button class="page-btn ${p===current?'active':''}" onclick="(${cb})(${p})">${p}</button>`;
+  }
+  html += `<button class="page-btn" onclick="(${cb})(${Math.min(pages,current+1)})" ${current>=pages?'disabled':''}>›</button>`;
+  document.getElementById(id).innerHTML = html;
+}
+
+// ── BOOT ──
+init();
 </script>
 </body>
 </html>
