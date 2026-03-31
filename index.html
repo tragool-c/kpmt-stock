@@ -891,10 +891,10 @@ function renderDashboard() {
 
   allParts.forEach(p => {
     total++;
-    const qty = Number(p['QTY']) || 0;
-    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    const qty = Number(p['Opening_Qty']) || 0;
+    const min = Number(p['Min_Stock']||0);
     if (qty === 0)       { empty++; }
-    else if (min > 0 && qty <= min) { low++; lowItems.push(p['Part No']); }
+    else if (min > 0 && qty <= min) { low++; lowItems.push(p['Part_ID']); }
     else                 { instock++; }
   });
 
@@ -917,8 +917,8 @@ function renderDashboard() {
   // Low stock table
   const tbody = document.getElementById('dash-low-tbl');
   const lowParts = allParts.filter(p => {
-    const qty = Number(p['QTY']) || 0;
-    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    const qty = Number(p['Opening_Qty']) || 0;
+    const min = Number(p['Min_Stock']||0);
     return qty === 0 || (min > 0 && qty <= min);
   }).slice(0, 20);
 
@@ -928,14 +928,14 @@ function renderDashboard() {
   }
 
   tbody.innerHTML = lowParts.map(p => {
-    const qty = Number(p['QTY']) || 0;
-    const min = Number(p['Min'] || p['MIN'] || p['min'] || 0);
+    const qty = Number(p['Opening_Qty']) || 0;
+    const min = Number(p['Min_Stock']||0);
     const badge = qty === 0
       ? '<span class="badge badge-empty">OUT</span>'
       : '<span class="badge badge-low">LOW</span>';
     return `<tr>
-      <td>${esc(p['Part No']||'')}</td>
-      <td>${esc(p['Description']||p['Desc']||p['NAME']||'')}</td>
+      <td>${esc(p['Part_ID']||'')}</td>
+      <td>${esc(p['Part_Name']||'')}</td>
       <td><strong>${qty}</strong></td>
       <td>${min||'—'}</td>
       <td>${badge}</td>
@@ -951,12 +951,12 @@ function filterParts() {
   const st  = document.getElementById('parts-filter-status').value;
   filteredParts = allParts.filter(p => {
     const match = !q ||
-      (p['Part No']||'').toLowerCase().includes(q) ||
-      (p['Description']||p['Desc']||'').toLowerCase().includes(q);
+      (p['Part_ID']||'').toLowerCase().includes(q) ||
+      (p['Part_Name']||'').toLowerCase().includes(q);
     let statusOk = true;
     if (st) {
-      const qty = Number(p['QTY']) || 0;
-      const min = Number(p['Min']||p['MIN']||0);
+      const qty = Number(p['Opening_Qty']) || 0;
+      const min = Number(p['Min_Stock']||0);
       if (st === 'empty') statusOk = qty === 0;
       else if (st === 'low')   statusOk = qty > 0 && min > 0 && qty <= min;
       else if (st === 'ok')    statusOk = qty > 0 && !(min > 0 && qty <= min);
@@ -982,8 +982,8 @@ function renderPartsTable() {
   }
 
   tbody.innerHTML = slice.map((p, i) => {
-    const qty = Number(p['QTY']) || 0;
-    const min = Number(p['Min']||p['MIN']||0);
+    const qty = Number(p['Opening_Qty']) || 0;
+    const min = Number(p['Min_Stock']||0);
     let badge;
     if (qty === 0) badge = '<span class="badge badge-empty">OUT</span>';
     else if (min > 0 && qty <= min) badge = '<span class="badge badge-low">LOW</span>';
@@ -991,12 +991,12 @@ function renderPartsTable() {
 
     return `<tr>
       <td style="color:var(--text-dim); font-size:11px;">${start+i+1}</td>
-      <td><strong>${esc(p['Part No']||'')}</strong></td>
-      <td>${esc(p['Description']||p['Desc']||p['NAME']||'')}</td>
-      <td>${esc(p['Unit']||p['UNIT']||'')}</td>
+      <td><strong>${esc(p['Part_ID']||'')}</strong></td>
+      <td>${esc(p['Part_Name']||'')}</td>
+      <td>${esc(p['Unit']||'')}</td>
       <td>${qty}</td>
       <td>${min||'—'}</td>
-      <td style="font-size:12px; color:var(--text-dim);">${esc(p['Location']||p['LOC']||'')}</td>
+      <td style="font-size:12px; color:var(--text-dim);">${esc(p['Location']||'')}</td>
       <td>${badge}</td>
     </tr>`;
   }).join('');
@@ -1098,17 +1098,17 @@ function acSearch(val, type) {
   if (!val || val.length < 1) { list.classList.remove('open'); return; }
   const q = val.toLowerCase();
   const matches = allParts.filter(p =>
-    (p['Part No']||'').toLowerCase().includes(q) ||
-    (p['Description']||p['Desc']||'').toLowerCase().includes(q)
+    (p['Part_ID']||'').toLowerCase().includes(q) ||
+    (p['Part_Name']||'').toLowerCase().includes(q)
   ).slice(0, 10);
 
   if (matches.length === 0) { list.classList.remove('open'); return; }
 
   list.innerHTML = matches.map(p => {
-    const qty = Number(p['QTY']) || 0;
+    const qty = Number(p['Opening_Qty']) || 0;
     const col = qty === 0 ? 'var(--red)' : qty <= 3 ? 'var(--yellow)' : 'var(--green)';
-    return `<div class="ac-item" onclick="acSelect('${esc(p['Part No']||'')}', '${esc(p['Description']||p['Desc']||'')}', ${qty}, '${type}')">
-      <strong>${esc(p['Part No']||'')}</strong> — ${esc(p['Description']||p['Desc']||'')}
+    return `<div class="ac-item" onclick="acSelect('${esc(p['Part_ID']||'')}', '${esc(p['Part_Name']||'')}', ${qty}, '${type}')">
+      <strong>${esc(p['Part_ID']||'')}</strong> — ${esc(p['Part_Name']||'')}
       <small style="float:right; color:${col};">QTY: ${qty}</small>
     </div>`;
   }).join('');
