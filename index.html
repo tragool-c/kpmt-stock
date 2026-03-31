@@ -54,7 +54,7 @@ input,select,textarea{font-family:var(--thai)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── NAVBAR ── */
-#navbar{background:var(--navy2);display:flex;align-items:stretch;padding:0 24px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}
+#navbar{background:var(--navy2);display:flex;align-items:stretch;padding:0 24px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto;position:sticky;top:60px;z-index:499}
 #navbar::-webkit-scrollbar{display:none}
 .nav-tab{display:flex;align-items:center;gap:7px;padding:0 18px;height:42px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#7B95AD;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:.15s;white-space:nowrap}
 .nav-tab:hover{color:#fff}
@@ -664,10 +664,10 @@ async function loadParts() {
   try {
     toast('Loading Part Master...', 'info');
     const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/01_PART_MASTER!A:R`);
-    if (!r.values || r.values.length < 3) throw new Error('No data');
-    const h = r.values[1]; // row 2 = headers
+    if (!r.values || r.values.length < 4) throw new Error('No data');
+    const h = r.values[2]; // row 3 = headers
     const ix = k => h.indexOf(k);
-    PARTS = r.values.slice(2).map(row => ({ // data starts row 3
+    PARTS = r.values.slice(3).map(row => ({ // data starts row 4
       id:       row[ix('Part_ID')]||'',
       loc:      row[ix('Location')]||'',
       name:     row[ix('Part_Name')]||'',
@@ -698,9 +698,9 @@ async function loadTxnsFromSheets() {
   try {
     const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/02_ISSUE_LOG!A:K`);
     if (!r.values || r.values.length < 2) return;
-    const h = r.values[1]; // row 2 = headers
+    const h = r.values[2]; // row 3 = headers
     const ix = k => h.indexOf(k);
-    TXNS = r.values.slice(2) // data starts row 3
+    TXNS = r.values.slice(3) // data starts row 4
       .filter(row => row[ix('Transaction_ID')] && row[ix('Transaction_ID')] !== 'Transaction_ID')
       .map(row => ({
         ref:      row[ix('Transaction_ID')]||'',
