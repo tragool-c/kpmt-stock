@@ -414,53 +414,50 @@ tbody tr:hover td:first-child{border-left-color:var(--orange)}
   <div class="pg-head"><div><div class="pg-title">System <span>Setup</span></div><div class="pg-sub">เชื่อมต่อกับ Google Sheets</div></div></div>
 
   <div class="setup-hero">
-    <div class="hero-icon">🔗</div>
+    <div class="hero-icon">⚙️</div>
     <div>
-      <div class="hero-title">Google Sheets Connection</div>
-      <div class="hero-desc">ระบบนี้ใช้ Google Sheets เป็นฐานข้อมูล ทำได้เลยโดยไม่ต้องขอ IT<br>ข้อมูลทั้งหมดอยู่ใน Google Drive ของคุณ แชร์ให้น้องสต็อคได้ทันที</div>
+      <div class="hero-title">System Setup</div>
+      <div class="hero-desc">ระบบเชื่อมต่อกับ Google Sheets ผ่าน Apps Script<br>ไม่ต้อง Login ไม่มีหมดอายุ ใช้ได้ 3-5 ปี</div>
     </div>
   </div>
 
-  <div class="setup-step" id="s1">
+  <div class="setup-step done" id="s1">
     <div class="step-num">1</div>
     <div style="flex:1">
-      <div class="step-title">Google Sheets ID</div>
-      <div class="step-desc">นำ ID จาก URL ของ Google Sheets มาวาง<br>เช่น: https://docs.google.com/spreadsheets/d/<b>1lTwYo36VCfttbEalbeZt_3kxHBY3qJlq</b>/edit</div>
-      <div class="step-inp">
-        <input type="text" id="cfg-sid" placeholder="1lTwYo36VCfttbEalbeZt_3kxHBY3qJlq">
-        <button class="btn btn-orange" style="padding:9px 16px;font-size:10px" onclick="saveCFG()">SAVE</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="setup-step" id="s2">
-    <div class="step-num">2</div>
-    <div style="flex:1">
-      <div class="step-title">Login Google Account</div>
-      <div class="step-desc">Login ด้วย Gmail ที่เป็นเจ้าของ Google Sheets ครับ</div>
-      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="google-btn" onclick="doGoogleLogin()">
-          <svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Login with Google
-        </button>
+      <div class="step-title">Connection Status</div>
+      <div class="step-desc">ระบบเชื่อมต่อ Google Sheets ผ่าน Apps Script อัตโนมัติ</div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="loadParts()">↻ RELOAD DATA</button>
         <button class="btn btn-ghost" onclick="doTest()">🔗 TEST CONNECTION</button>
       </div>
       <div id="test-msg" style="margin-top:10px;font-size:12px;font-family:var(--mono)"></div>
     </div>
   </div>
 
+  <div class="setup-step done" id="s2">
+    <div class="step-num">2</div>
+    <div style="flex:1">
+      <div class="step-title">แชร์ให้น้องสต็อค</div>
+      <div class="step-desc">ส่ง link <b>https://tragool-c.github.io/kpmt-stock/</b> ให้น้องสต็อค<br>เปิดได้ทันที ไม่ต้อง Login ไม่ต้องติดตั้งอะไร</div>
+    </div>
+  </div>
+
   <div class="setup-step" id="s3">
     <div class="step-num">3</div>
     <div style="flex:1">
-      <div class="step-title">แชร์ให้น้องสต็อค</div>
-      <div class="step-desc">เปิด Google Sheets → Share → เพิ่ม email น้องสต็อค → Editor<br>น้องสต็อคเปิด App ไฟล์นี้แล้ว Login Google account ตัวเองได้เลย</div>
+      <div class="step-title">Notification Email (อนาคต)</div>
+      <div class="step-desc">ใส่ email ที่ต้องการรับแจ้งเตือนเมื่อสต็อคใกล้หมด</div>
+      <div class="step-inp">
+        <input type="text" id="cfg-email" placeholder="email@example.com (ยังไม่ active)">
+        <button class="btn btn-ghost" style="padding:9px 16px;font-size:10px" onclick="toast('จะเปิดใช้ในอนาคต','info')">SAVE</button>
+      </div>
     </div>
   </div>
 
   <div style="background:var(--green-l);border:1px solid var(--green-b);border-left:4px solid var(--green);border-radius:2px;padding:16px 20px;margin-top:8px">
-    <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:6px">✅ ข้อดีของ Google Sheets</div>
+    <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:6px">✅ Apps Script API</div>
     <div style="font-size:12px;color:var(--t2);line-height:1.8;font-family:var(--thai)">
-      ไม่ต้องขอสิทธิ์ IT · เปิดไฟล์จากเครื่องได้เลย ไม่ต้องรัน server · แชร์ให้น้องใช้ได้ทันที · ข้อมูล real-time ทั้ง 2 คน
+      ไม่ต้อง Login ทุกชั่วโมง · ทุกคนเปิดได้เลยไม่ต้อง Google Account · ใช้ได้ 3-5 ปี · ข้อมูล real-time
     </div>
   </div>
 </div>
@@ -478,54 +475,35 @@ tbody tr:hover td:first-child{border-left-color:var(--orange)}
 
 <script>
 // ============================================================
-//  CONFIG — ใส่ Sheets ID ของคุณได้เลย
+//  CONFIG — Apps Script API (ไม่ต้อง Login ทุกชั่วโมง)
 // ============================================================
-const SHEETS_ID_DEFAULT = '1lTwYo36VCfttbEalbeZt_3kxHBY3qJlq';
-
-// Google OAuth2 config — ใช้ Google Identity Services (GIS)
-// Client ID สาธารณะสำหรับ installed apps / localhost
-const GOOGLE_CLIENT_ID = '823236598846-4k1d0ap3kb9dpcgqq86flrmeqleerqva.apps.googleusercontent.com'; // ใส่ Google OAuth Client ID ที่นี่ (ดู Setup)
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const API_URL = 'https://script.google.com/macros/s/AKfycbz5LQgivLuuaGY94-LCkPT720qi7Qw7ktTyZfCLCdKakb5cgiZu3VsvqR2Gf8zKOm15PQ/exec';
 
 // ============================================================
 //  STATE
 // ============================================================
-const CFG_K = 'kpmt_goog_v4';
+const CFG_K = 'kpmt_script_v4';
 const TXN_K = 'kpmt_txn_v4';
 let CFG = JSON.parse(localStorage.getItem(CFG_K) || '{}');
 let TXNS = JSON.parse(localStorage.getItem(TXN_K) || '[]');
 let PARTS = [];
-let ACCESS_TOKEN = null;
 let cGrp = null, cMov = null;
-let LAST_PO = null;
 
 // ============================================================
 //  INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  if (!CFG.sid) CFG.sid = SHEETS_ID_DEFAULT;
-  loadCFG(); setDates(); buildMonths();
+  setDates(); buildMonths();
   renderDash(); renderHist(TXNS);
-  // Load GIS
-  loadScript('https://accounts.google.com/gsi/client')
-    .then(() => { if (CFG.token) tryResumeSession(); })
-    .catch(() => {});
+  // Auto-load parts on startup
+  loadParts();
+  setConn('load', 'LOADING...');
 });
 
-function loadCFG() {
-  const el = document.getElementById('cfg-sid');
-  if (el) el.value = CFG.sid || SHEETS_ID_DEFAULT;
-}
-
+function loadCFG() {}
 function saveCFG() {
-  const v = document.getElementById('cfg-sid').value.trim();
-  // Extract ID from full URL if pasted
-  const m = v.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-  CFG.sid = m ? m[1] : v;
-  document.getElementById('cfg-sid').value = CFG.sid;
   localStorage.setItem(CFG_K, JSON.stringify(CFG));
-  toast('Sheets ID saved ✓', 'success');
-  document.getElementById('s1').classList.add('done');
+  toast('Settings saved ✓', 'success');
 }
 
 function setDates() {
@@ -534,201 +512,74 @@ function setDates() {
 }
 
 // ============================================================
-//  GOOGLE LOGIN — ใช้ OAuth2 Implicit Flow
+//  APPS SCRIPT API — ไม่ต้อง Login ไม่หมดอายุ
 // ============================================================
-function doGoogleLogin() {
-  if (!CFG.sid) { toast('กรุณาใส่ Sheets ID ก่อน', 'error'); return; }
-
-  // ถ้ายังไม่มี Google Client ID ให้ใช้ API Key แบบ read-only ก่อน
-  // หรือใช้ gapi token picker
-  if (!GOOGLE_CLIENT_ID) {
-    // Fallback: ใช้ Google Identity Services token client
-    toast('กำลัง redirect ไป Google Login...', 'info');
-    setTimeout(() => {
-      // เปิด OAuth consent screen แบบ popup
-      const params = new URLSearchParams({
-        client_id: '764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com',
-        redirect_uri: 'http://localhost:8080',
-        response_type: 'token',
-        scope: SCOPES,
-        include_granted_scopes: 'true',
-        state: 'kpmt_auth'
-      });
-      const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
-      const popup = window.open(authUrl, 'google-login', 'width=500,height=600,scrollbars=yes');
-
-      // Listen for redirect with token
-      const timer = setInterval(() => {
-        try {
-          if (popup && popup.location && popup.location.href && popup.location.href.includes('access_token')) {
-            const hash = new URLSearchParams(popup.location.hash.slice(1));
-            ACCESS_TOKEN = hash.get('access_token');
-            popup.close();
-            clearInterval(timer);
-            if (ACCESS_TOKEN) {
-              CFG.token = ACCESS_TOKEN;
-              localStorage.setItem(CFG_K, JSON.stringify(CFG));
-              setConn('ok', 'GOOGLE CONNECTED');
-              document.getElementById('s2').classList.add('done');
-              toast('Login สำเร็จ ✓', 'success');
-              loadParts();
-            }
-          }
-        } catch(e) {}
-        if (popup && popup.closed) { clearInterval(timer); }
-      }, 500);
-    }, 300);
-    return;
-  }
-
-  // ถ้ามี Client ID ใช้ GIS
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: SCOPES,
-    callback: (resp) => {
-      if (resp.error) { toast('Login failed: ' + resp.error, 'error'); return; }
-      ACCESS_TOKEN = resp.access_token;
-      CFG.token = ACCESS_TOKEN;
-      localStorage.setItem(CFG_K, JSON.stringify(CFG));
-      setConn('ok', 'GOOGLE CONNECTED');
-      document.getElementById('s2').classList.add('done');
-      toast('Login สำเร็จ ✓', 'success');
-      loadParts();
-    }
-  });
-  client.requestAccessToken();
+async function apiCall(params) {
+  const url = params.method === 'POST'
+    ? API_URL
+    : API_URL + '?' + new URLSearchParams(params.query);
+  const opts = params.method === 'POST'
+    ? { method:'POST', body: JSON.stringify(params.body) }
+    : {};
+  const r = await fetch(url, opts);
+  const data = await r.json();
+  if (!data.ok) throw new Error(data.msg || 'API Error');
+  return data;
 }
 
-function tryResumeSession() {
-  // ลอง use stored token
-  if (CFG.token) {
-    ACCESS_TOKEN = CFG.token;
-    setConn('load', 'CHECKING...');
-    loadParts().then(() => {
-      setConn('ok', 'GOOGLE CONNECTED');
-    }).catch(() => {
-      ACCESS_TOKEN = null;
-      setConn('err', 'TOKEN EXPIRED');
-    });
-  }
+async function doGoogleLogin() {
+  toast('กำลังเชื่อมต่อ...', 'info');
+  try {
+    await loadParts();
+    document.getElementById('s2').classList.add('done');
+  } catch(e) { toast('เชื่อมต่อไม่ได้: '+e.message, 'error'); }
 }
 
 async function doTest() {
   const el = document.getElementById('test-msg');
-  if (!ACCESS_TOKEN) { el.textContent = '⚠ กรุณา Login ก่อน'; el.style.color='var(--amber)'; return; }
   el.textContent = 'Testing...'; el.style.color='var(--t3)';
   try {
-    const r = await sheetsGet(`spreadsheets/${CFG.sid}?fields=sheets.properties.title`);
-    const sheets = r.sheets.map(s=>s.properties.title).join(', ');
-    el.textContent = '✓ Connected — Sheets: ' + sheets;
+    const r = await apiCall({query:{action:'ping'}});
+    el.textContent = '✓ ' + r.msg;
     el.style.color = 'var(--green)';
     document.getElementById('s2').classList.add('done');
     document.getElementById('s3').classList.add('done');
-  } catch(e) {
-    el.textContent = '✗ Failed: ' + e.message;
-    el.style.color = 'var(--red)';
-  }
+  } catch(e) { el.textContent = '✗ '+e.message; el.style.color='var(--red)'; }
 }
 
 // ============================================================
-//  GOOGLE SHEETS API
-// ============================================================
-const GAPI = 'https://sheets.googleapis.com/v4';
-
-async function sheetsGet(path) {
-  const r = await fetch(`${GAPI}/${path}`, {
-    headers: { Authorization: 'Bearer ' + ACCESS_TOKEN }
-  });
-  if (!r.ok) {
-    const err = await r.json();
-    throw new Error(err.error?.message || r.status);
-  }
-  return r.json();
-}
-
-async function sheetsAppend(range, values) {
-  const r = await fetch(
-    `${GAPI}/spreadsheets/${CFG.sid}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    { method:'POST', headers:{ Authorization:'Bearer '+ACCESS_TOKEN, 'Content-Type':'application/json' },
-      body: JSON.stringify({ values }) }
-  );
-  if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||r.status); }
-  return r.json();
-}
-
-// ============================================================
-//  LOAD PARTS FROM GOOGLE SHEETS
+//  LOAD PARTS FROM APPS SCRIPT
 // ============================================================
 async function loadParts() {
-  if (!ACCESS_TOKEN || !CFG.sid) return;
+  setConn('load', 'LOADING...');
   try {
-    toast('Loading Part Master...', 'info');
-    const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/01_PART_MASTER!A:R`);
-    if (!r.values || r.values.length < 4) throw new Error('No data');
-    const h = r.values[2]; // row 3 = headers
-    const ix = k => h.indexOf(k);
-    PARTS = r.values.slice(3).map(row => ({ // data starts row 4
-      id:       row[ix('Part_ID')]||'',
-      loc:      row[ix('Location')]||'',
-      name:     row[ix('Part_Name')]||'',
-      model:    row[ix('Model_Type')]||'',
-      brand:    row[ix('Maker_Brand')]||'',
-      unit:     row[ix('Unit')]||'Pcs.',
-      supplier: row[ix('Supplier')]||'',
-      lead:     +row[ix('Lead_Time_Wk')]||0,
-      min:      +row[ix('Min_Stock')]||0,
-      max:      +row[ix('Max_Stock')]||0,
-      oq:       +row[ix('Opening_Qty')]||0,
-      price:    +row[ix('Avg_Price_THB')]||0,
-      grp:      row[ix('Group')]||'',
-      line:     row[ix('Line')]||'',
-    })).filter(p => p.id && p.id !== 'Part_ID');
-    toast(`Loaded ${PARTS.length} parts ✓`, 'success');
+    toast('Loading Parts...', 'info');
+    const r = await apiCall({query:{action:'getParts'}});
+    PARTS = r.parts;
+    toast(\`Loaded \${PARTS.length} parts ✓\`, 'success');
+    setConn('ok', 'CONNECTED');
     renderDash();
-    // Also load transactions
     await loadTxnsFromSheets();
   } catch(e) {
+    setConn('err', 'CONNECTION ERROR');
     toast('Load failed: '+e.message, 'error');
     throw e;
   }
 }
 
 async function loadTxnsFromSheets() {
-  if (!ACCESS_TOKEN || !CFG.sid) return;
   try {
-    const r = await sheetsGet(`spreadsheets/${CFG.sid}/values/02_ISSUE_LOG!A:K`);
-    if (!r.values || r.values.length < 2) return;
-    const h = r.values[2]; // row 3 = headers
-    const ix = k => h.indexOf(k);
-    TXNS = r.values.slice(3) // data starts row 4
-      .filter(row => row[ix('Transaction_ID')] && row[ix('Transaction_ID')] !== 'Transaction_ID')
-      .map(row => ({
-        ref:      row[ix('Transaction_ID')]||'',
-        date:     row[ix('Date')]||'',
-        pid:      row[ix('Part_ID')]||'',
-        pname:    row[ix('Part_Name')]||'',
-        type:     row[ix('Type')]||'',
-        qty:      +row[ix('Qty')]||0,
-        unit:     row[ix('Unit')]||'',
-        ref_no:   row[ix('Ref_No')]||'',
-        used_for: row[ix('Used_For')]||'',
-        by:       row[ix('Requested_By')]||'',
-        note:     row[ix('Note')]||'',
-      }));
+    const r = await apiCall({query:{action:'getLog'}});
+    TXNS = r.txns;
     localStorage.setItem(TXN_K, JSON.stringify(TXNS));
     renderHist(TXNS);
   } catch(e) {}
 }
 
-// ============================================================
-//  WRITE TRANSACTION
-// ============================================================
 async function writeTxn(t) {
   TXNS.push(t);
   localStorage.setItem(TXN_K, JSON.stringify(TXNS));
-  if (!ACCESS_TOKEN) return;
-  const row = [t.ref, t.date, t.pid, t.pname, t.type, t.qty, t.unit, t.ref_no||'', t.used_for||'', t.by||'', t.note||''];
-  await sheetsAppend('02_ISSUE_LOG!A:K', [row]);
+  await apiCall({method:'POST', body:{action:'addTxn', ...t}});
 }
 
 // ============================================================
@@ -895,7 +746,7 @@ function drawCharts() {
 //  HISTORY
 // ============================================================
 async function loadHist() {
-  if(ACCESS_TOKEN) { try{ await loadTxnsFromSheets(); }catch(e){} }
+  try{ await loadTxnsFromSheets(); }catch(e){}
   renderHist(TXNS);
 }
 function filterHist(){ renderHist(TXNS); }
